@@ -1,0 +1,5 @@
+.nav-tabs.nav-justified > .active2 > a,
+.nav-tabs.nav-justified > .active2 > a:hover,
+.nav-tabs.nav-justified > .active2 > a:focus {
+    background-color: #eee;
+}
