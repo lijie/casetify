@@ -3,3 +3,7 @@
 .nav-tabs.nav-justified > .active2 > a:focus {
     background-color: #eee;
 }
+
+.phone_design_container {
+    padding: 50px;
+}

@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap 101 Template</title>
+    <title>Design your own {{.PhoneName}} case</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
 
-    <link rel="stylesheet" href="design.css">
+    <link rel="stylesheet" href="/design.css">
 
     <!-- Optional theme -->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">-->
@@ -23,7 +23,7 @@
   </head>
   <body>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="design.js"></script>
+    <script src="/design.js"></script>
     <script>
       $(document).ready(function() {
       console.log("design init");
@@ -40,10 +40,10 @@
       <div class="row">
 	<div class="col-sm-4 col-md-4">1</div>
 	<div class="col-sm-4 col-md-4">
-	  <div>
-	    <img style="position:fixed;" src="base_iphone6_261.png"></img>
-	    <img style="position:fixed;" src="mask_iphone6.png"></img>
-	    <img style="position:fixed;" src="overlay_iphone6-single-261.png"></img>
+	  <div class="phone_design_container">
+	    <img style="position:fixed;" src="{{.ResPath}}/base_iphone6_261.png"></img>
+	    <img style="position:fixed;" src="{{.ResPath}}/mask_iphone6.png"></img>
+	    <img style="position:fixed;" src="{{.ResPath}}/overlay_iphone6-single-261.png"></img>
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
