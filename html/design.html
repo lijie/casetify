@@ -42,6 +42,47 @@
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <!-- <script src="js/bootstrap.min.js"></script> -->
+    <div id="builder-main-content" class="f-height relative" style="display:none">
+      <div class="f-height">
+	<div class="phone-view f-height f-width second-color-light">
+	  xxxxxxx
+
+	  <div class="f-height f-width relative">
+	    <div class="f-height" id="design-panel">
+	      <div class="f-height">
+		<style>
+		  .saving-overlay {
+		  position: fixed;
+		  width: 100%;
+		  height: 100%;
+		  left: 0;
+		  top: 0;
+		  background: rgba(255,255,255,0.8);
+		  z-index: 4;
+		  }
+
+		  #progress-bar-container {
+		  z-index: 5;
+		  }
+		</style>
+
+		<div class="custom-case table f-height f-width">
+		  <div class="t-cell f-height f-width vertical-middle text-center">
+		    <div class="inline vertical-middle relative">
+		      <div id="design-canvas">
+			<canvas class="absolute" width="282" height="560">
+			</canvas>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
 
     <div class="container-fluid">
 
@@ -55,21 +96,21 @@
 	  <div>
 	    <img style="position:absolute;" src="{{.ResPath}}/base_iphone6_261.png"></img>
 	    <img id="userimg" style="position:absolute;clip:rect(0px 282px 560px 0px)" src=""></img>
-	    <img style="position:absolute;filter:invert;" src="{{.ResPath}}/mask_iphone6.png"></img>
+	    <img style="position:absolute;filter:invert(100%);-webkit-filter:invert(100%)" src="{{.ResPath}}/mask_iphone6.png"></img>
 	    <img style="position:absolute;" src="{{.ResPath}}/overlay_iphone6-single-261.png"></img>
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
-	  <aside class="absolute">
-	  <div class="">
-	    <ul class="nav nav-tabs nav-justified">
-	      <li id="list_product"><a href="#" id="btn_product">Product</a></li>
-	      <li id="list_photo"><a href="#" id="btn_photo">Photo</a>
-	      <li id="list_filter"><a href="#" id="btn_filter">Filter</a>
-	    </ul>
-	  </div>
+	  <div class="f-height border" style="position:fixed;display:block;">
+	    <div class="f-width">
+	      <ul class="nav nav-tabs nav-justified">
+		<li id="list_product"><a href="#" id="btn_product">Product</a></li>
+		<li id="list_photo"><a href="#" id="btn_photo">Photo</a>
+		<li id="list_filter"><a href="#" id="btn_filter">Filter</a>
+	      </ul>
+	    </div>
 
-	  <div class="" id="product_sub_nav">
+	  <div class="f-height relative" id="product_sub_nav">
 	    <ul class="nav nav-tabs nav-justified">
 	      <li><a href="#">Device</a>
 	      <li><a href="#">Case</a>
@@ -77,8 +118,65 @@
 
 	    <h4 class="border-bottom" style="margin:0px;padding 11px 22px;" align="center">Choose Your Device</h4>
 
-	    <div class="" style="height:100%;margin:0px;" id="product_list">
+	    <div class="f-height" style="display:block;overflow:auto" id="product_list">
 	      <ul class="featured-phone-list" style="display:block;box-sizing:border-box;margin:0px;padding:0px;clear:both;list-style:none">
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
+		<li class="block f-left border-right border-bottom">
+		  <a href="#" class="table f-width f-height">iPhone 6</a>
+		</li>
 		<li class="block f-left border-right border-bottom">
 		  <a href="#" class="table f-width f-height">iPhone 6</a>
 		</li>
@@ -165,7 +263,7 @@
 	      <li><a href="#">Filter</a>
 	    </ul>
 	  </div>
-	  </aside>
+	  </div>
 	</div>
       </div>
     </div>
