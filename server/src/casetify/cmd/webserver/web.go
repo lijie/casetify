@@ -24,6 +24,7 @@ func main() {
 		// http.HandleFunc("/b/", BlogServer)
 		// http.HandleFunc("/r/", ReaderServer)
 		http.HandleFunc("/hello", HelloServer)
+		http.HandleFunc("/upload", HandleUpload)
 		http.HandleFunc("/design/", HandleDesign)
 	} else {
 		// run for SimpleHttpd

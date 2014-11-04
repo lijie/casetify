@@ -46,4 +46,10 @@ function design_button_init() {
 	inactive_photo();
 	active_filter();
     });
+
+    $("#btn_upload").on("click", function(event) {
+	console.log("btn_upload");
+	$("#upload_form").removeClass("hide");
+    });
+
 };
