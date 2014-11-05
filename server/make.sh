@@ -2,4 +2,4 @@
 
 export GOPATH=`pwd`
 
-go install casetify/cmd/webserver
+go install -ldflags "-s -w" casetify/cmd/webserver
