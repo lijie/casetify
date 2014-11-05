@@ -41,7 +41,7 @@ func (ig *Instagram) RecentMedia(count int) error {
 	return nil
 }
 
-func HandleInstagramRedirect2(w http.ResponseWriter, req *http.Request) {
+func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	config := &oauth.Config{
 		ClientId:     InstagramClientID,

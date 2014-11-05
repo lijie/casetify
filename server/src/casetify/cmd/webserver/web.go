@@ -71,7 +71,8 @@ func main() {
 		http.HandleFunc("/cookie", HandleTestCookie)
 		http.HandleFunc("/cookie2", HandleTestCookie2)
 		http.HandleFunc("/get", HandleTestGet)
-		http.HandleFunc("/instagram_redirect_uri", HandleInstagramRedirect2)
+		http.HandleFunc("/instagram_redirect_uri", HandleInstagramRedirect)
+		http.HandleFunc("/facebook_redirect_uri", HandleFacebookRedirect)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
