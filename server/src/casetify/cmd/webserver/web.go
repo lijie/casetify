@@ -16,16 +16,14 @@ var rootDir = flag.String("rootdir", "", "default root dir")
 func main() {
 	flag.Parse()
 
-	// run for jayhome
 	if *rootDir == "" {
 		// serve static under an alternate URL
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../html"))))
-		// http.HandleFunc("/b", BlogServer)
-		// http.HandleFunc("/b/", BlogServer)
-		// http.HandleFunc("/r/", ReaderServer)
+
 		http.HandleFunc("/hello", HelloServer)
 		http.HandleFunc("/upload", HandleUpload)
 		http.HandleFunc("/design/", HandleDesign)
+		http.HandleFunc("/instagram_redirect_uri", HandleInstagramRedirect)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
