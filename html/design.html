@@ -35,6 +35,11 @@
       $(document).ready(function() {
       console.log("design init");
       design_button_init();
+
+      $("#btn-instagram-login").on("click", function(event) {
+      var feature = "height=600, width=810, scrollbars=yes, resizable=yes";
+      window.open("{{.InstagramApiUrl}}", '3km', feature);
+      });
       });
     </script>
 
@@ -256,6 +261,10 @@
 	    <!-- The file input field used as target for the file upload widget -->
 	    <input id="fileupload" type="file" name="files[]" multiple>
 	    <div id="files" class="files"></div>
+	  </div>
+
+	  <div id="instagram_login">
+	    <a id="btn-instagram-login" href="#">Login</a>
 	  </div>
 
 	  <div class="" id="filter_sub_nav" style="display:none">
