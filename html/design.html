@@ -8,7 +8,7 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
-
+    <!-- Latest compiled and minified JavaScript -->
     <link rel="stylesheet" href="/design.css">
 
     <!-- Optional theme -->
@@ -30,19 +30,73 @@
     <!-- The basic File Upload plugin -->
     <script src="/jQuery-File-Upload-9.8.0/js/jquery.fileupload.js"></script>
 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
     <script src="/design.js"></script>
     <script>
       $(document).ready(function() {
       console.log("design init");
       design_button_init();
-
+      design_panel_init();
+      
       $("#btn-instagram-login").on("click", function(event) {
+      var feature = "height=600, width=810, scrollbars=yes, resizable=yes";
+      window.open("{{.InstagramApiUrl}}", '3km', feature);
+      });
+      $("#btn-instagram-login2").on("click", function(event) {
       var feature = "height=600, width=810, scrollbars=yes, resizable=yes";
       window.open("{{.InstagramApiUrl}}", '3km', feature);
       });
       });
     </script>
 
+    <!-- Modal -->
+    <div class="modal fade" id="modal-device" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	    <h4 class="modal-title" id="myModalLabel">Select your device</h4>
+	  </div>
+	  <div class="modal-body">
+	    Put a device list here
+	    <p>to be continue</p>
+	    <p>to be continue</p>
+	    <p>to be continue</p>
+	    <p>to be continue</p>
+	    <p>to be continue</p>
+	  </div>
+	  <div class="modal-footer">
+	    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	    <button type="button" class="btn btn-primary">Save changes</button>
+	  </div>
+	</div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-upload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	    <h4 class="modal-title" id="myModalLabel">Upload your photo</h4>
+	  </div>
+	  <div class="modal-body">
+	    <div id="upload_form" class="upload_form">
+	      <span>Select files...</span>
+	      <!-- The file input field used as target for the file upload widget -->
+	      <input id="fileupload" type="file" name="files[]" multiple>
+	      <div id="files" class="files"></div>
+	    </div>
+	  </div>
+	  <div class="modal-footer">
+	    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	    <button type="button" class="btn btn-primary">Save changes</button>
+	  </div>
+	</div>
+      </div>
+    </div>
+    
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
     <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -90,15 +144,14 @@
     </div>
 
     <div class="container-fluid">
-
       <div class="row">
-	<div class="col-sm-4 col-md-4" style="background-color: #efe;">
+	<div class="col-sm-4 col-md-4">
 	  <div class="clearfix">
 	    xxxxxxxxxxx
 	  </div>
 	</div>
-	<div class="col-sm-4 col-md-4" style="background-color: #efe;">
-	  <div>
+	<div class="col-sm-4 col-md-4">
+	  <div style="margin-top:50px;">
 	    <img style="position:absolute;" src="{{.ResPath}}/base_iphone6_261.png"></img>
 	    <img id="userimg" style="position:absolute;clip:rect(0px 282px 560px 0px)" src=""></img>
 	    <img style="position:absolute;filter:invert(100%);-webkit-filter:invert(100%)" src="{{.ResPath}}/mask_iphone6.png"></img>
@@ -106,7 +159,53 @@
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
-	  <div class="f-height border" style="position:fixed;display:block;">
+	  <div style="margin-top:30px;">
+	    <div id="panel-device" class="panel panel-default">
+	      <div class="panel-heading">
+		<h3 class="panel-title">Choose your device</h3>
+	      </div>
+	      <div class="panel-body">
+		Your device: {{.PhoneDispName}}
+	      </div>
+	      <ul class="list-group" style="overflow:auto;">
+		<li class="list-group-item">iPhone 6P</li>
+		<li class="list-group-item">iPhone 5s</li>
+		<li class="list-group-item">iPhone 5c</li>
+		<li class="list-group-item">iPhone 5</li>
+		<li class="list-group-item">iPhone 4/4s</li>
+	      </ul>
+	      <div class="panel-footer">
+		<a id="btn-more-device" href="#" data-toggle="modal" data-target="#modal-device">
+		  More...
+		</a>
+	      </div>
+	    </div>
+
+	    <div id="panel-photo" class="panel panel-default">
+	      <div class="panel-heading">
+		<h3 class="panel-title">Select a photo</h3>
+	      </div>
+	      <ul class="nav nav-pills nav-justified" role="tablist">
+		<li role="presention">
+		  <a href="#" id="btn-instagram-login2">Instagram</a>
+		</li>
+		<li role="presention">
+		  <a href="#" id="btn-facebook-login2">Facebook</a>
+		</li>
+		<li role="presention">
+		  <a id="btn-upload" href="#" data-toggle="modal" data-target="#modal-upload">Upload</a>
+		</li>
+	      </ul>
+	    </div>
+
+	    <div id="panel-filter" class="panel panel-default">
+	      <div class="panel-heading">
+		<h3 class="panel-title">Select a filter</h3>
+	      </div>
+	    </div>
+	  </div>
+
+	  <div class="f-height border" style="position:fixed;display:none;">
 	    <div class="f-width">
 	      <ul class="nav nav-tabs nav-justified">
 		<li id="list_product"><a href="#" id="btn_product">Product</a></li>
@@ -115,163 +214,163 @@
 	      </ul>
 	    </div>
 
-	  <div class="f-height relative" id="product_sub_nav">
-	    <ul class="nav nav-tabs nav-justified">
-	      <li><a href="#">Device</a>
-	      <li><a href="#">Case</a>
-	    </ul>
+	    <div class="f-height relative" id="product_sub_nav">
+	      <ul class="nav nav-tabs nav-justified">
+		<li><a href="#">Device</a>
+		<li><a href="#">Case</a>
+	      </ul>
 
-	    <h4 class="border-bottom" style="margin:0px;padding 11px 22px;" align="center">Choose Your Device</h4>
+	      <h4 class="border-bottom" style="margin:0px;padding 11px 22px;" align="center">Choose Your Device</h4>
 
-	    <div class="f-height" style="display:block;overflow:auto" id="product_list">
-	      <ul class="featured-phone-list" style="display:block;box-sizing:border-box;margin:0px;padding:0px;clear:both;list-style:none">
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
-		<li class="block f-left border-right border-bottom">
-		  <a href="#" class="table f-width f-height">iPhone 6</a>
-		</li>
+	      <div class="f-height" style="display:block;overflow:auto" id="product_list">
+		<ul class="featured-phone-list" style="display:block;box-sizing:border-box;margin:0px;padding:0px;clear:both;list-style:none">
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
+		  <li class="block f-left border-right border-bottom">
+		    <a href="#" class="table f-width f-height">iPhone 6</a>
+		  </li>
 
+		</ul>
+	      </div>
+
+	    </div>
+
+	    <div class="" id="photo_sub_nav" style="display:none">
+	      <ul class="nav nav-tabs nav-justified">
+		<li><a href="#">Instagram</a>
+		<li><a href="#">Facebook</a>
+		<li><a href="#" id="btn_upload">Upload</a>
 	      </ul>
 	    </div>
 
-	  </div>
+	    <div id="upload_form" class="upload_form hide">
+	      <span>Select files...</span>
+	      <!-- The file input field used as target for the file upload widget -->
+	      <input id="fileupload" type="file" name="files[]" multiple>
+	      <div id="files" class="files"></div>
+	    </div>
 
-	  <div class="" id="photo_sub_nav" style="display:none">
-	    <ul class="nav nav-tabs nav-justified">
-	      <li><a href="#">Instagram</a>
-	      <li><a href="#">Facebook</a>
-	      <li><a href="#" id="btn_upload">Upload</a>
-	    </ul>
-	  </div>
+	    <div id="instagram_login">
+	      <a id="btn-instagram-login" href="#">Login</a>
+	    </div>
 
-	  <div id="upload_form" class="upload_form hide">
-	    <span>Select files...</span>
-	    <!-- The file input field used as target for the file upload widget -->
-	    <input id="fileupload" type="file" name="files[]" multiple>
-	    <div id="files" class="files"></div>
-	  </div>
-
-	  <div id="instagram_login">
-	    <a id="btn-instagram-login" href="#">Login</a>
-	  </div>
-
-	  <div class="" id="filter_sub_nav" style="display:none">
-	    <ul class="nav nav-tabs nav-justified">
-	      <li><a href="#">Filter</a>
-	    </ul>
-	  </div>
+	    <div class="" id="filter_sub_nav" style="display:none">
+	      <ul class="nav nav-tabs nav-justified">
+		<li><a href="#">Filter</a>
+	      </ul>
+	    </div>
 	  </div>
 	</div>
       </div>

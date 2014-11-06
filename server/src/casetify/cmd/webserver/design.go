@@ -9,13 +9,17 @@ import (
 
 type DataSet struct {
 	PhoneName string
+	PhoneDispName string
 	ResPath string
+	InstagramApiUrl string
 }
 
 func handlePhoneName(w http.ResponseWriter, req *http.Request, phone_type string) {
 	data := &DataSet{
 		PhoneName: phone_type,
+		PhoneDispName: "iPhone 6",
 		ResPath: "/res/" + phone_type,
+		InstagramApiUrl: "http://www.bing.com",
 	}
 	
 	t, err := template.ParseFiles("../html/design.html")
