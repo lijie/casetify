@@ -2,26 +2,32 @@ package main
 
 import (
 	"net/http"
+	"code.google.com/p/goauth2/oauth"
 	"fmt"
 	"errors"
 	"log"
-	"time"
 	_ "github.com/gorilla/sessions"
+	"casetify/instagram"
 )
-
-type OAuthToken struct {
-	Token string
-	Expire time.Time
-}
 
 type UserInfo struct {
 	Uid string
-	InstagramToken OAuthToken
-	FacekbookToken OAuthToken
+	Email string
+	Password string
+	InstagramToken *oauth.Token
+	FacebookToken *oauth.Token
+	InstagramApi *instagram.Instagram
+}
+
+// TODO(lijie): need lock
+var usermap map[string]*UserInfo
+
+func init() {
+	usermap = make(map[string]*UserInfo)
 }
 
 func (info *UserInfo) HasInstagramToken() bool {
-	if len(info.InstagramToken.Token) == 0 {
+	if info.InstagramToken == nil {
 		return false
 	}
 
@@ -30,7 +36,7 @@ func (info *UserInfo) HasInstagramToken() bool {
 }
 
 func (info *UserInfo) HasFacebookToken() bool {
-	if len(info.InstagramToken.Token) == 0 {
+	if info.FacebookToken == nil {
 		return false
 	}
 
@@ -39,9 +45,28 @@ func (info *UserInfo) HasFacebookToken() bool {
 }
 
 func FindUser(uid string) *UserInfo {
-	return &UserInfo{
+	if info, ok := usermap[uid]; ok {
+		return info
+	}
+	return nil
+}
+
+func FindCreateUser(uid string) *UserInfo {
+	if info, ok := usermap[uid]; ok {
+		return info
+	}
+	info := &UserInfo{
 		Uid: uid,
 	}
+	// TODO(lijie): read from config file
+	conf := &instagram.Config{
+		ClientID: "46c08890f7ef4731b2b802d972c3d000",
+		ClientSecret: "",
+		RedirectURL: "http://127.0.0.1:8082/instagram_redirect_uri",
+	}
+	info.InstagramApi = instagram.NewInstagram(conf)
+	usermap[uid] = info
+	return info
 }
 
 func CreateUid(req *http.Request) (string, error) {
@@ -82,10 +107,11 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 		return nil, err
 	}
 
-	info := FindUser(uid)
+	info := FindCreateUser(uid)
 	if info == nil {
 		return nil, errors.New("Cannot create user info")
 	}
 
+	fmt.Println(info)
 	return info, nil
 }

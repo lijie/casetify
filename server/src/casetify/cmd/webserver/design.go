@@ -12,6 +12,22 @@ type DataSet struct {
 	PhoneDispName string
 	ResPath string
 	InstagramApiUrl string
+	IGName string
+	FBName string
+	Uid string
+	HasIGToken bool
+	HasFBToken bool
+}
+
+func fillDataWithUserInfo(data *DataSet, info *UserInfo) {
+	data.Uid = info.Uid
+	if info.HasInstagramToken() {
+		data.HasIGToken = true;
+	}
+	if info.HasFacebookToken() {
+		data.HasFBToken = true;
+	}
+	data.InstagramApiUrl = "https://api.instagram.com/oauth/authorize/?client_id=46c08890f7ef4731b2b802d972c3d000&response_type=code&state=getcode|andrewli&redirect_uri=http://127.0.0.1:8082/instagram_redirect_uri"
 }
 
 func handlePhoneName(w http.ResponseWriter, req *http.Request, phone_type string) {
@@ -19,7 +35,11 @@ func handlePhoneName(w http.ResponseWriter, req *http.Request, phone_type string
 		PhoneName: phone_type,
 		PhoneDispName: "iPhone 6",
 		ResPath: "/res/" + phone_type,
-		InstagramApiUrl: "http://www.bing.com",
+	}
+
+	info, err := RestoreUserInfoFromCookie(w, req)
+	if err == nil {
+		fillDataWithUserInfo(data, info);
 	}
 	
 	t, err := template.ParseFiles("../html/design.html")

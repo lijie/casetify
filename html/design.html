@@ -21,7 +21,7 @@
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
   </head>
-  <body>
+  <body style="margin:0px;height:100%">
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
     <script src="/jQuery-File-Upload-9.8.0/js/vendor/jquery.ui.widget.js"></script>
@@ -31,6 +31,16 @@
     <script src="/jQuery-File-Upload-9.8.0/js/jquery.fileupload.js"></script>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+    <script>
+      // global vars
+      var mycase_uid = {{.Uid}};
+      var ig_name = {{.IGName}};
+      var fb_name = {{.FBName}};
+      var has_ig_token = {{.HasIGToken}};
+      var has_fb_token = {{.HasFBToken}};
+    </script>
+
     <script src="/design.js"></script>
     <script>
       $(document).ready(function() {
@@ -97,57 +107,11 @@
       </div>
     </div>
     
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <!-- <script src="js/bootstrap.min.js"></script> -->
-    <div id="builder-main-content" class="f-height relative" style="display:none">
-      <div class="f-height">
-	<div class="phone-view f-height f-width second-color-light">
-	  xxxxxxx
-
-	  <div class="f-height f-width relative">
-	    <div class="f-height" id="design-panel">
-	      <div class="f-height">
-		<style>
-		  .saving-overlay {
-		  position: fixed;
-		  width: 100%;
-		  height: 100%;
-		  left: 0;
-		  top: 0;
-		  background: rgba(255,255,255,0.8);
-		  z-index: 4;
-		  }
-
-		  #progress-bar-container {
-		  z-index: 5;
-		  }
-		</style>
-
-		<div class="custom-case table f-height f-width">
-		  <div class="t-cell f-height f-width vertical-middle text-center">
-		    <div class="inline vertical-middle relative">
-		      <div id="design-canvas">
-			<canvas class="absolute" width="282" height="560">
-			</canvas>
-		      </div>
-		    </div>
-		  </div>
-		</div>
-		
-	      </div>
-	    </div>
-	  </div>
-	</div>
-      </div>
-    </div>
-
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-bottom:0px;background-color:#eee;height:100%;position:absolute">
       <div class="row">
 	<div class="col-sm-4 col-md-4">
-	  <div class="clearfix">
-	    xxxxxxxxxxx
+	  <div id="logo-image" style="margin-top:30px;">
+	    <img src="http://www.casetify.com/img/casetagram_id.png" alt="Make your case" class="img-rounded">
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
@@ -159,8 +123,8 @@
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
-	  <div style="margin-top:30px;">
-	    <div id="panel-device" class="panel panel-default">
+	  <div style="margin-top:30px;overflow:auto">
+	    <div id="panel-device" class="panel panel-primary">
 	      <div class="panel-heading">
 		<h3 class="panel-title">Choose your device</h3>
 	      </div>

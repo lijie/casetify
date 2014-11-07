@@ -1,11 +1,13 @@
 package main
 
 import "net/http"
+import "html/template"
 import "io"
 import "log"
 import "fmt"
 import "flag"
 import "time"
+import "strings"
 import "github.com/gorilla/sessions"
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -17,12 +19,15 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 // just for test
 var CookieStore = sessions.NewCookieStore([]byte("something-very-secert"))
 
+func init() {
+}
+
 func HandleTestCookie2(w http.ResponseWriter, req *http.Request) {
 	session, _ := CookieStore.Get(req, "session-name")
 	fmt.Println(session)
 
 	session.Values["uid"] = "andrewli"
-	session.Save(req, w);
+	session.Save(req, w)
 	io.WriteString(w, "hello, world!\n")
 }
 
@@ -53,6 +58,47 @@ func HandleTestCookie(w http.ResponseWriter, req *http.Request) {
 func HandleTestGet(w http.ResponseWriter, req *http.Request) {
 	values := req.URL.Query()
 	fmt.Println(values["param"])
+}
+
+// HandleInstagramRedirect 处理instagram的授权应答
+// 失败的话, 输出失败页面
+// 成功的话, 主动拉取用户最新的N张照片并展示供用户选择
+func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
+	fmt.Printf("HandleInstagramRedirect %v\n", req)
+	// get uid from request
+	state := strings.Split(req.FormValue("state"), "|")
+	if len(state) < 2 {
+		fmt.Printf("no state\n")
+		return
+	}
+
+	info := FindUser(state[1])
+	if info == nil {
+		return
+	}
+
+	token, err := info.InstagramApi.GetAccessToken(w, req)
+	if err != nil {
+		fmt.Printf("GetAccessToken err %v\n", err)
+		return
+	}
+
+	// save token
+	info.InstagramToken = token
+	fmt.Printf("Get instagram token %v for user %s\n", token, info.Uid)
+
+	// TODO(lijie): output html template
+	medias, err := info.InstagramApi.RecentMedia(token, 10)
+	if err != nil {
+		return
+	}
+
+	t, err := template.ParseFiles("../html/instagram_photo_list.html")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	t.Execute(w, medias);
 }
 
 var port = flag.Int("port", 80, "default port")
