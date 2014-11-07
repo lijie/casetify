@@ -54,7 +54,13 @@
       });
       $("#btn-instagram-login2").on("click", function(event) {
       var feature = "height=600, width=810, scrollbars=yes, resizable=yes";
-      window.open("{{.InstagramApiUrl}}", '3km', feature);
+      var doc = window.open("{{.InstagramApiUrl}}", '3km', feature);
+      console.log(doc);
+      });
+      $("#btn-facebook-login2").on("click", function(event) {
+      var feature = "height=600, width=810, scrollbars=yes, resizable=yes";
+      var doc = window.open("/test.html", '3km', feature);
+      console.log(doc);
       });
       });
     </script>
@@ -123,8 +129,21 @@
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
-	  <div style="margin-top:30px;overflow:auto">
-	    <div id="panel-device" class="panel panel-primary">
+	  <div style="margin-top:30px;">
+	  <ul class="nav nav-tabs nav-justified" role="tablist">
+	    <li role="presention">
+	      <a href="#" id="btn-select-device">Device</a>
+	    </li>
+	    <li role="presention">
+	      <a href="#" id="btn-select-photo">Photo</a>
+	    </li>
+	    <li role="presention">
+	      <a href="#" id="btn-select-filter">Filter</a>
+	    </li>
+	  </ul>
+	  </div>
+	  <div style="margin-top:10px;height:100%;overflow:auto">
+	    <div id="panel-device" class="panel panel-info">
 	      <div class="panel-heading">
 		<h3 class="panel-title">Choose your device</h3>
 	      </div>
@@ -145,7 +164,7 @@
 	      </div>
 	    </div>
 
-	    <div id="panel-photo" class="panel panel-default">
+	    <div id="panel-photo" class="panel panel-info">
 	      <div class="panel-heading">
 		<h3 class="panel-title">Select a photo</h3>
 	      </div>
@@ -160,13 +179,17 @@
 		  <a id="btn-upload" href="#" data-toggle="modal" data-target="#modal-upload">Upload</a>
 		</li>
 	      </ul>
+	      <div id="panel-place-photo">
+	      </div>
 	    </div>
 
-	    <div id="panel-filter" class="panel panel-default">
+	    <div id="panel-filter" class="panel panel-info">
 	      <div class="panel-heading">
 		<h3 class="panel-title">Select a filter</h3>
 	      </div>
 	    </div>
+
+	    <a role="button" class="btn btn-primary btn-lg btn-block">SAVE THIS DESIGN</a>
 	  </div>
 
 	  <div class="f-height border" style="position:fixed;display:none;">
