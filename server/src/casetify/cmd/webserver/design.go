@@ -27,7 +27,9 @@ func fillDataWithUserInfo(data *DataSet, info *UserInfo) {
 	if info.HasFacebookToken() {
 		data.HasFBToken = true;
 	}
-	data.InstagramApiUrl = "https://api.instagram.com/oauth/authorize/?client_id=46c08890f7ef4731b2b802d972c3d000&response_type=code&state=getcode|andrewli&redirect_uri=http://127.0.0.1:8082/instagram_redirect_uri"
+
+	data.InstagramApiUrl = info.InstagramApi.ApiURL(info.Uid)
+	fmt.Printf("instagram api url:\n%s\n", data.InstagramApiUrl)
 }
 
 func handlePhoneName(w http.ResponseWriter, req *http.Request, phone_type string) {

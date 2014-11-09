@@ -25,6 +25,10 @@ type Medias struct {
 	URL []string
 }
 
+func (ig *Instagram) ApiURL(name string) string {
+	return "https://api.instagram.com/oauth/authorize/?response_type=code&client_id=" + ig.conf.ClientID +"&state=getcode|" + name +"&redirect_uri=" + ig.conf.RedirectURL
+}
+
 func (ig *Instagram) RecentMedia(token *oauth.Token, count int) (*Medias, error) {
 	ig.client.AccessToken = token.AccessToken
 
@@ -68,6 +72,7 @@ func (ig *Instagram) GetAccessToken(w http.ResponseWriter, req *http.Request) (*
 	fmt.Println(err)
 
 	if err != nil {
+		fmt.Printf("get token err %v\n", err)
 		return nil, err
 	}
 

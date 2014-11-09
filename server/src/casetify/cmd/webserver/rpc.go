@@ -4,10 +4,14 @@ import (
 	"net/http"
 	"code.google.com/p/goauth2/oauth"
 	"fmt"
+	"time"
+	"io"
 	"errors"
 	"log"
 	_ "github.com/gorilla/sessions"
 	"casetify/instagram"
+	"crypto/sha1"
+	"encoding/hex"
 )
 
 type UserInfo struct {
@@ -61,7 +65,7 @@ func FindCreateUser(uid string) *UserInfo {
 	// TODO(lijie): read from config file
 	conf := &instagram.Config{
 		ClientID: "46c08890f7ef4731b2b802d972c3d000",
-		ClientSecret: "",
+		ClientSecret: "efd1320106d64d2e9ed581ae4196b62b",
 		RedirectURL: "http://127.0.0.1:8082/instagram_redirect_uri",
 	}
 	info.InstagramApi = instagram.NewInstagram(conf)
@@ -70,7 +74,10 @@ func FindCreateUser(uid string) *UserInfo {
 }
 
 func CreateUid(req *http.Request) (string, error) {
-	return "", nil
+	sha := sha1.New()
+	io.WriteString(sha, req.RemoteAddr)
+	io.WriteString(sha, time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
+	return hex.EncodeToString(sha.Sum(nil)), nil
 }
 
 func GetCreateUid(w http.ResponseWriter, req *http.Request) (string, error) {
@@ -78,7 +85,7 @@ func GetCreateUid(w http.ResponseWriter, req *http.Request) (string, error) {
 	fmt.Println(session)
 
 	uid, ok := session.Values["uid"]
-	if ok {
+	if ok && len(uid.(string)) > 8 {
 		log.Printf("Get uid from cookie: %s\n", uid.(string))
 		return uid.(string), nil
 	}
@@ -87,6 +94,7 @@ func GetCreateUid(w http.ResponseWriter, req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Printf("new UID %s\n", uidstr)
 
 	session.Values["uid"] = uidstr;
 	session.Save(req, w);
@@ -112,6 +120,6 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 		return nil, errors.New("Cannot create user info")
 	}
 
-	fmt.Println(info)
+	fmt.Printf("userinfo %v\n", info)
 	return info, nil
 }

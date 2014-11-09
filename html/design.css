@@ -94,3 +94,12 @@ second-color-light {
     background-color: #f2f2f2;
     color: #666;
 }
+
+.absolute-center {
+    margin: auto;
+    position: absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+}

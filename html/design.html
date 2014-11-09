@@ -7,7 +7,11 @@
     <title>Design your own {{.PhoneName}} case</title>
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap.min.css">
+
+    <!-- jQuery UI theme CSS -->
+    <link rel="stylesheet" href="/jquery-ui.css">
+    
     <!-- Latest compiled and minified JavaScript -->
     <link rel="stylesheet" href="/design.css">
 
@@ -21,8 +25,8 @@
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
   </head>
-  <body style="margin:0px;height:100%">
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <body style="margin:0px;height:100%;">
+    <script src="/jquery-1.11.0.min.js"></script>
     <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
     <script src="/jQuery-File-Upload-9.8.0/js/vendor/jquery.ui.widget.js"></script>
     <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
@@ -30,8 +34,10 @@
     <!-- The basic File Upload plugin -->
     <script src="/jQuery-File-Upload-9.8.0/js/jquery.fileupload.js"></script>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
 
+    <!-- jQuery UI -->
+    <script src="/jquery-ui.js"></script>
     <script>
       // global vars
       var mycase_uid = {{.Uid}};
@@ -62,6 +68,20 @@
       var doc = window.open("/test.html", '3km', feature);
       console.log(doc);
       });
+
+      $("#btn-test").on("click", function(event) {
+      $("#img-editor-photo").draggable();
+      $("#img-editor-layer").show();
+      console.log("xxx");
+      });
+      });
+      
+      $(function() {
+      //$("#draggable").draggable();
+      //$("#img-editor-layer").resizable();
+      //$("#img-editor-photo").resizable({handles: "n, e, s, w, ne, se, sw, nw"});
+      //$("#img-editor-photo").draggable();
+      //$("#img-editor-layer").draggable();
       });
     </script>
 
@@ -121,11 +141,12 @@
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
-	  <div style="margin-top:50px;">
+	  <div style="margin-top:50px;" class="border">
 	    <img style="position:absolute;" src="{{.ResPath}}/base_iphone6_261.png"></img>
 	    <img id="userimg" style="position:absolute;clip:rect(0px 282px 560px 0px)" src=""></img>
 	    <img style="position:absolute;filter:invert(100%);-webkit-filter:invert(100%)" src="{{.ResPath}}/mask_iphone6.png"></img>
 	    <img style="position:absolute;" src="{{.ResPath}}/overlay_iphone6-single-261.png"></img>
+	    <div style="width:282px;height:560px;position:absolute;" id="img-editor-div"></div>
 	  </div>
 	</div>
 	<div class="col-sm-4 col-md-4">
@@ -178,8 +199,14 @@
 		<li role="presention">
 		  <a id="btn-upload" href="#" data-toggle="modal" data-target="#modal-upload">Upload</a>
 		</li>
+		<li role="presention">
+		  <a id="btn-test" href="#" >Test</a>
+		</li>
 	      </ul>
-	      <div id="panel-place-photo">
+	      <div id="draggable">
+		<div id="panel-place-photo">
+
+		</div>
 	      </div>
 	    </div>
 
@@ -363,6 +390,11 @@
       </div>
     </div>
 
+    <div id="img-editor-layer" style="position:absolute;height:800px;width:100%px;z-index:100;background-color:rgba(0,0,0,0.1);display:none;" class="absolute-center">
+      <img id="img-editor-photo" src="/uploadfiles/th9_blz.jpg" width="600px;" style="z-index:101" class="absolute-center">
+      
+    </div>
+    
 <script>
 /*jslint unparam: true */
 /*global window, $ */

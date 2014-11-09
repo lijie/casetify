@@ -61,8 +61,8 @@ func HandleTestGet(w http.ResponseWriter, req *http.Request) {
 }
 
 // HandleInstagramRedirect 处理instagram的授权应答
-// 失败的话, 输出失败页面
-// 成功的话, 主动拉取用户最新的N张照片并展示供用户选择
+// 失败, 输出失败页面
+// 成功, 主动拉取用户最新的N张照片并展示供用户选择
 func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 	fmt.Printf("HandleInstagramRedirect %v\n", req)
 	// get uid from request
@@ -90,6 +90,7 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 	// TODO(lijie): output html template
 	medias, err := info.InstagramApi.RecentMedia(token, 10)
 	if err != nil {
+		fmt.Printf("ERR: RecentMedia %v\n", err)
 		return
 	}
 
