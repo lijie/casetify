@@ -21,6 +21,18 @@ type UserInfo struct {
 	InstagramToken *oauth.Token
 	FacebookToken *oauth.Token
 	InstagramApi *instagram.Instagram
+
+	isLogin bool
+}
+
+type CaseInfo struct {
+	PhoneID int
+	PhoneName string
+	ImageUrl string
+	X int
+	Y int
+	Scale float64
+	Filter int
 }
 
 // TODO(lijie): need lock
@@ -28,6 +40,10 @@ var usermap map[string]*UserInfo
 
 func init() {
 	usermap = make(map[string]*UserInfo)
+}
+
+func (info *UserInfo) IsLogin() bool {
+	return info.isLogin
 }
 
 func (info *UserInfo) HasInstagramToken() bool {
@@ -101,13 +117,27 @@ func GetCreateUid(w http.ResponseWriter, req *http.Request) (string, error) {
 	return uidstr, nil
 }
 
-func GetUserInfo(uid string, info *UserInfo) error {
-	return nil
-}
-
-func SaveUserInfo(uid string, info *UserInfo) error {
-	return nil
-}
+//func readUidFromCookie(w http.ResponseWriter, req *http) (string, error) {
+//	// read uid from cookie
+//	session, err := CookieStore.Get(req, "session-name")
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	uid, ok := session.Values["uid"]
+//	if !ok || len(uid) < 8 {
+//
+//}
+//
+//func RestoreUserInfoFromCookie2(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
+//	uid, err := readUidFromCookie(w, req)
+//	if err != nil || len(uid) < 8 {
+//		// no uid, create
+//		uid = createUid(req)
+//		// create userinfo
+//		
+//	}
+//}
 
 func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
 	uid, err := GetCreateUid(w, req)
@@ -122,4 +152,8 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 
 	fmt.Printf("userinfo %v\n", info)
 	return info, nil
+}
+
+func GetUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
+	return nil, nil
 }

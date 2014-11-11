@@ -1,0 +1,10 @@
+{
+    "phone": {
+	"iphone6": {
+	    "name": "iphone6",
+	    "dispname": "iPhone 6",
+	    "casewidht": 260,
+	    "caseheight": 520
+	}
+    }
+}

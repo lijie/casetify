@@ -102,12 +102,26 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 	t.Execute(w, medias);
 }
 
+func HandleBuy(w http.ResponseWriter, req *http.Request) {
+}
+
+func HandlePay(w http.ResponseWriter, req *http.Request) {
+}
+
+func HandleLogin(w http.ResponseWriter, req *http.Request) {
+}
+
+func HandleOrder(w http.ResponseWriter, req *http.Request) {
+}
+
 var port = flag.Int("port", 80, "default port")
 var rootDir = flag.String("rootdir", "", "default root dir")
 
 func main() {
 	flag.Parse()
 
+	ReadCaseConfig("conf/caseconf.json")
+	
 	if *rootDir == "" {
 		// serve static under an alternate URL
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../html"))))
@@ -120,6 +134,10 @@ func main() {
 		http.HandleFunc("/get", HandleTestGet)
 		http.HandleFunc("/instagram_redirect_uri", HandleInstagramRedirect)
 		http.HandleFunc("/facebook_redirect_uri", HandleFacebookRedirect)
+		http.HandleFunc("/login", HandleLogin)
+		http.HandleFunc("/buy", HandleBuy)
+		http.HandleFunc("/pay", HandlePay)
+		http.HandleFunc("/order", HandleOrder)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
