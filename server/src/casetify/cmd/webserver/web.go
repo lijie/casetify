@@ -9,6 +9,7 @@ import "flag"
 import "time"
 import "strings"
 import "github.com/gorilla/sessions"
+import "casetify/db"
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "hello, world!\n")
@@ -18,6 +19,8 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 // cookie encryption key cannot be set in source code
 // just for test
 var CookieStore = sessions.NewCookieStore([]byte("something-very-secert"))
+
+var CaseDB *db.DB
 
 func init() {
 }
@@ -117,11 +120,7 @@ func HandleOrder(w http.ResponseWriter, req *http.Request) {
 var port = flag.Int("port", 80, "default port")
 var rootDir = flag.String("rootdir", "", "default root dir")
 
-func main() {
-	flag.Parse()
-
-	ReadCaseConfig("conf/caseconf.json")
-	
+func initWebService() {
 	if *rootDir == "" {
 		// serve static under an alternate URL
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../html"))))
@@ -142,7 +141,25 @@ func main() {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
 	}
+}
 
+func initLogicServer() {
+	var err error
+	CaseDB, err = db.NewDB("127.0.0.1:20000")
+	if err != nil {
+		log.Fatal("Connect DB failed %v\n", err)
+	}
+}
+
+func main() {
+	flag.Parse()
+	
+	ReadCaseConfig("conf/caseconf.json")
+
+	initLogicServer()
+	initWebService()
+	
+	// run webservice
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if err != nil {
 		log.Fatal("fatal %p", err)
