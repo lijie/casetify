@@ -40,11 +40,8 @@
     <script src="/jquery-ui.js"></script>
     <script>
       // global vars
-      var mycase_uid = {{.Uid}};
-      var ig_name = {{.IGName}};
-      var fb_name = {{.FBName}};
-      var has_ig_token = {{.HasIGToken}};
-      var has_fb_token = {{.HasFBToken}};
+      var has_ig_token = {{.HasInstagramToken}};
+      var has_fb_token = {{.HasFacebookToken}};
     </script>
 
     <script src="/design.js"></script>
@@ -142,10 +139,10 @@
 	</div>
 	<div class="col-sm-4 col-md-4">
 	  <div style="margin-top:50px;" class="border">
-	    <img style="position:absolute;" src="{{.ResPath}}/base_iphone6_261.png"></img>
+	    <img style="position:absolute;" src="/res/{{.PhoneName}}/base_iphone6_261.png"></img>
 	    <img id="userimg" style="position:absolute;clip:rect(0px 282px 560px 0px)" src=""></img>
-	    <img style="position:absolute;filter:invert(100%);-webkit-filter:invert(100%)" src="{{.ResPath}}/mask_iphone6.png"></img>
-	    <img style="position:absolute;" src="{{.ResPath}}/overlay_iphone6-single-261.png"></img>
+	    <img style="position:absolute;filter:invert(100%);-webkit-filter:invert(100%)" src="/res/{{.PhoneName}}/mask_iphone6.png"></img>
+	    <img style="position:absolute;" src="/res/{{.PhoneName}}/overlay_iphone6-single-261.png"></img>
 	    <div style="width:282px;height:560px;position:absolute;" id="img-editor-div"></div>
 	  </div>
 	</div>

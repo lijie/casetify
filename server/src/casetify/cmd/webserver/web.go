@@ -147,7 +147,7 @@ func initLogicServer() {
 	var err error
 	CaseDB, err = db.NewDB("127.0.0.1:20000")
 	if err != nil {
-		log.Fatal("Connect DB failed %v\n", err)
+		// log.Fatal("Connect DB failed %v\n", err)
 	}
 }
 
