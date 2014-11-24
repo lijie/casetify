@@ -1,15 +1,17 @@
 package main
 
-import "net/http"
-import "html/template"
-import "io"
-import "log"
-import "fmt"
-import "flag"
-import "time"
-import "strings"
-import "github.com/gorilla/sessions"
-import "casetify/db"
+import (
+	"casetify/db"
+	"flag"
+	"fmt"
+	"github.com/gorilla/sessions"
+	"html/template"
+	"io"
+	"log"
+	"net/http"
+	"strings"
+	"time"
+)
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "hello, world!\n")
@@ -102,7 +104,7 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	t.Execute(w, medias);
+	t.Execute(w, medias)
 }
 
 func HandleBuy(w http.ResponseWriter, req *http.Request) {
@@ -145,20 +147,20 @@ func initWebService() {
 
 func initLogicServer() {
 	var err error
-	CaseDB, err = db.NewDB("127.0.0.1:20000")
+	CaseDB, err = db.NewDB("127.0.0.1:27017")
 	if err != nil {
-		// log.Fatal("Connect DB failed %v\n", err)
+		log.Fatal("Connect DB failed %v\n", err)
 	}
 }
 
 func main() {
 	flag.Parse()
-	
+
 	ReadCaseConfig("conf/caseconf.json")
 
 	initLogicServer()
 	initWebService()
-	
+
 	// run webservice
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if err != nil {
