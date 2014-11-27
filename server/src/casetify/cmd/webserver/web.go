@@ -125,7 +125,8 @@ var rootDir = flag.String("rootdir", "", "default root dir")
 func initWebService() {
 	if *rootDir == "" {
 		// serve static under an alternate URL
-		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../html"))))
+		// http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../html"))))
+		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../htdocs"))))
 
 		http.HandleFunc("/hello", HelloServer)
 		http.HandleFunc("/upload", HandleUpload)
@@ -146,11 +147,11 @@ func initWebService() {
 }
 
 func initLogicServer() {
-	var err error
-	CaseDB, err = db.NewDB("127.0.0.1:27017")
-	if err != nil {
-		log.Fatal("Connect DB failed %v\n", err)
-	}
+	//var err error
+	//CaseDB, err = db.NewDB("127.0.0.1:27017")
+	//if err != nil {
+	//	log.Fatal("Connect DB failed %v\n", err)
+	//}
 }
 
 func main() {

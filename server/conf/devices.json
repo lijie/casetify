@@ -1,0 +1,51 @@
+[{
+    "device_id": "26",
+    "description": "iPhone 6",
+    "short_description": "iPhone 6",
+    "short_name": "iphone6",
+    "status": "A",
+    "show_product_shot": "Y",
+    "is_default_for_collection": "N",
+    "sort_seq": "10",
+    "default_item_option": "261",
+    "is_featured": "Y"
+},
+ {
+     "device_id": "27",
+     "description": "iPhone 6 Plus",
+     "short_description": "iPhone 6 Plus",
+     "short_name": "iphone6-plus",
+     "status": "A",
+     "show_product_shot": "Y",
+     "is_default_for_collection": "N",
+     "sort_seq": "100",
+     "default_item_option": "271",
+     "is_featured": "Y"
+ },
+ {
+     "device_id": "3",
+     "description": "Samsung Galaxy S III",
+     "short_description": "Galaxy S III",
+     "short_name": "samsung-galaxy-s3",
+     "status": "A",
+     "show_product_shot": "Y",
+     "is_default_for_collection": "N",
+     "sort_seq": "37",
+     "default_item_option": "31",
+     "is_featured": "Y"
+ },
+ {
+     "device_id": "12",
+     "description": "Nexus 4",
+     "short_description": "Nexus 4",
+     "short_name": "nexus4",
+     "status": "A",
+     "show_product_shot": "N",
+     "is_default_for_collection": "N",
+     "sort_seq": "60",
+     "default_item_option": "121",
+     "is_featured": "N"
+ },
+ {"device_id":"15","description":"iPhone 5s","short_description":"iPhone 5s","short_name":"iphone5s","status":"A","show_product_shot":"Y","is_default_for_collection":"N","sort_seq":"2","default_item_option":"151","is_featured":"Y"},
+ {"device_id":"6","description":"iPhone 5","short_description":"iPhone 5","short_name":"iphone5","status":"A","show_product_shot":"Y","is_default_for_collection":"N","sort_seq":"6","default_item_option":"61","is_featured":"Y"}
+]
