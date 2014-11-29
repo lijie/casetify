@@ -41,10 +41,11 @@ type DataSet struct {
 	HasFacebookToken bool
 }
 
-type DataSet2 struct {
+type designDataSet struct {
 	ServerDevices string
 	ServerItemOption string
 	DefaultDevice string
+	IsLogin bool
 }
 
 func fillDataWithUserInfo(data *DataSet, info *UserInfo) {
@@ -56,7 +57,7 @@ func fillDataWithUserInfo(data *DataSet, info *UserInfo) {
 		data.HasFacebookToken = true
 	}
 
-	data.InstagramApiUrl = info.InstagramApi.ApiURL(info.Uid)
+	data.InstagramApiUrl = info.InstagramApi.ApiURL(info.Rid)
 	fmt.Printf("instagram api url:\n%s\n", data.InstagramApiUrl)
 }
 
@@ -116,11 +117,11 @@ func unmarshalDevices(phone_type string) []map[string]string {
 		return nil
 	}
 
-	for i := 0; i < len(v); i++ {
-		if v[i]["short_name"] == phone_type {
-			v[i]["is_default_for_collection"] = "Y"
-		}
-	}
+//	for i := 0; i < len(v); i++ {
+//		if v[i]["short_name"] == phone_type {
+//			v[i]["is_default_for_collection"] = "Y"
+//		}
+//	}
 	
 	return v
 }
@@ -156,7 +157,7 @@ func HandleDesign(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data := &DataSet2{}
+	data := &designDataSet{}
 	
 	b, _ := json.Marshal(unmarshalDevices(phone_type))
 	data.ServerDevices = string(b)

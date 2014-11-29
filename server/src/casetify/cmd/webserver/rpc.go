@@ -15,24 +15,15 @@ import (
 )
 
 type UserInfo struct {
-	Uid string
+	// random user id
+	Rid string
 	Email string
 	Password string
 	InstagramToken *oauth.Token
 	FacebookToken *oauth.Token
 	InstagramApi *instagram.Instagram
-
 	isLogin bool
-}
-
-type CaseInfo struct {
-	PhoneID int
-	PhoneName string
-	ImageUrl string
-	X int
-	Y int
-	Scale float64
-	Filter int
+	UploadList []*FileUploadInfo
 }
 
 // TODO(lijie): need lock
@@ -64,19 +55,19 @@ func (info *UserInfo) HasFacebookToken() bool {
 	return true
 }
 
-func FindUser(uid string) *UserInfo {
-	if info, ok := usermap[uid]; ok {
+func FindUser(rid string) *UserInfo {
+	if info, ok := usermap[rid]; ok {
 		return info
 	}
 	return nil
 }
 
-func FindCreateUser(uid string) *UserInfo {
-	if info, ok := usermap[uid]; ok {
+func FindCreateUser(rid string) *UserInfo {
+	if info, ok := usermap[rid]; ok {
 		return info
 	}
 	info := &UserInfo{
-		Uid: uid,
+		Rid: rid,
 	}
 	// TODO(lijie): read from config file
 	conf := &instagram.Config{
@@ -85,75 +76,71 @@ func FindCreateUser(uid string) *UserInfo {
 		RedirectURL: "http://127.0.0.1:8082/instagram_redirect_uri",
 	}
 	info.InstagramApi = instagram.NewInstagram(conf)
-	usermap[uid] = info
+	usermap[rid] = info
 	return info
 }
 
-func CreateUid(req *http.Request) (string, error) {
+func CreateRid(req *http.Request) (string, error) {
 	sha := sha1.New()
 	io.WriteString(sha, req.RemoteAddr)
 	io.WriteString(sha, time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
 	return hex.EncodeToString(sha.Sum(nil)), nil
 }
 
-func GetCreateUid(w http.ResponseWriter, req *http.Request) (string, error) {
+func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 	session, _ := CookieStore.Get(req, "session-name")
 	fmt.Println(session)
 
-	uid, ok := session.Values["uid"]
-	if ok && len(uid.(string)) > 8 {
-		log.Printf("Get uid from cookie: %s\n", uid.(string))
-		return uid.(string), nil
+	rid, ok := session.Values["rid"]
+	if ok && len(rid.(string)) > 8 {
+		log.Printf("Get rid from cookie: %s\n", rid.(string))
+		return rid.(string), nil
 	}
 
-	uidstr, err := CreateUid(req)
+	ridstr, err := CreateRid(req)
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("new UID %s\n", uidstr)
+	fmt.Printf("new RID %s\n", ridstr)
 
-	session.Values["uid"] = uidstr;
+	session.Values["rid"] = ridstr;
 	session.Save(req, w);
-	return uidstr, nil
+	return ridstr, nil
 }
 
-//func readUidFromCookie(w http.ResponseWriter, req *http) (string, error) {
-//	// read uid from cookie
+//func readRidFromCookie(w http.ResponseWriter, req *http) (string, error) {
+//	// read rid from cookie
 //	session, err := CookieStore.Get(req, "session-name")
 //	if err != nil {
 //		return nil, err
 //	}
 //
-//	uid, ok := session.Values["uid"]
-//	if !ok || len(uid) < 8 {
+//	rid, ok := session.Values["rid"]
+//	if !ok || len(rid) < 8 {
 //
 //}
 //
 //func RestoreUserInfoFromCookie2(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
-//	uid, err := readUidFromCookie(w, req)
-//	if err != nil || len(uid) < 8 {
-//		// no uid, create
-//		uid = createUid(req)
+//	rid, err := readRidFromCookie(w, req)
+//	if err != nil || len(rid) < 8 {
+//		// no rid, create
+//		rid = createRid(req)
 //		// create userinfo
 //		
 //	}
 //}
 
 func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
-	uid, err := GetCreateUid(w, req)
+	rid, err := GetCreateRid(w, req)
 	if err != nil {
 		return nil, err
 	}
 
-	info := FindCreateUser(uid)
+	info := FindCreateUser(rid)
 	if info == nil {
 		return nil, errors.New("Cannot create user info")
 	}
 
 	fmt.Printf("userinfo %v\n", info)
 	return info, nil
-}
-
-func GetUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
-	return nil, nil
 }

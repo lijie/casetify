@@ -90,7 +90,7 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 
 	// save token
 	info.InstagramToken = token
-	fmt.Printf("Get instagram token %v for user %s\n", token, info.Uid)
+	fmt.Printf("Get instagram token %v for user %s\n", token, info.Rid)
 
 	// TODO(lijie): output html template
 	medias, err := info.InstagramApi.RecentMedia(token, 10)
@@ -129,7 +129,7 @@ func initWebService() {
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../htdocs"))))
 
 		http.HandleFunc("/hello", HelloServer)
-		http.HandleFunc("/upload", HandleUpload)
+		// http.HandleFunc("/upload", HandleUpload)
 		http.HandleFunc("/design/", HandleDesign)
 		http.HandleFunc("/cookie", HandleTestCookie)
 		http.HandleFunc("/cookie2", HandleTestCookie2)
@@ -140,6 +140,9 @@ func initWebService() {
 		http.HandleFunc("/buy", HandleBuy)
 		http.HandleFunc("/pay", HandlePay)
 		http.HandleFunc("/order", HandleOrder)
+		http.HandleFunc("/upload", HandleUpload2)
+		http.HandleFunc("/getuploadlist", HandleGetUploadList)
+		http.HandleFunc("/mapper", HandleMapper)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
