@@ -6,23 +6,24 @@ import (
 	"fmt"
 	"time"
 	"io"
-	"errors"
 	"log"
 	_ "github.com/gorilla/sessions"
 	"casetify/instagram"
 	"crypto/sha1"
 	"encoding/hex"
+	"os"
+	"io/ioutil"
+	"encoding/json"
 )
 
 type UserInfo struct {
 	// random user id
 	Rid string
 	Email string
-	Password string
 	InstagramToken *oauth.Token
 	FacebookToken *oauth.Token
 	InstagramApi *instagram.Instagram
-	isLogin bool
+	IsLogin bool
 	UploadList []*FileUploadInfo
 }
 
@@ -31,10 +32,6 @@ var usermap map[string]*UserInfo
 
 func init() {
 	usermap = make(map[string]*UserInfo)
-}
-
-func (info *UserInfo) IsLogin() bool {
-	return info.isLogin
 }
 
 func (info *UserInfo) HasInstagramToken() bool {
@@ -62,22 +59,32 @@ func FindUser(rid string) *UserInfo {
 	return nil
 }
 
-func FindCreateUser(rid string) *UserInfo {
+func FindCreateUser(rid string) (*UserInfo, error) {
 	if info, ok := usermap[rid]; ok {
-		return info
+		return info, nil
 	}
 	info := &UserInfo{
 		Rid: rid,
 	}
-	// TODO(lijie): read from config file
-	conf := &instagram.Config{
-		ClientID: "46c08890f7ef4731b2b802d972c3d000",
-		ClientSecret: "efd1320106d64d2e9ed581ae4196b62b",
-		RedirectURL: "http://127.0.0.1:8082/instagram_redirect_uri",
+	f, err := os.Open("conf/instagram.json")
+	if err != nil {
+		fmt.Printf("open instagram.json err %v\n", err)
+		return nil, err
+	}
+	defer f.Close()
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		fmt.Printf("read instagram.json err %v\n", err)
+		return nil, err
+	}
+	conf := &instagram.Config{}
+	if err = json.Unmarshal(b, conf); err != nil {
+		fmt.Printf("unmarshal instagram.json err %v\n", err)
+		return nil, err
 	}
 	info.InstagramApi = instagram.NewInstagram(conf)
 	usermap[rid] = info
-	return info
+	return info, nil
 }
 
 func CreateRid(req *http.Request) (string, error) {
@@ -136,9 +143,9 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 		return nil, err
 	}
 
-	info := FindCreateUser(rid)
-	if info == nil {
-		return nil, errors.New("Cannot create user info")
+	info, err := FindCreateUser(rid)
+	if err != nil {
+		return nil, err
 	}
 
 	fmt.Printf("userinfo %v\n", info)

@@ -16,9 +16,9 @@ type Instagram struct {
 }
 
 type Config struct {
-	ClientID     string
-	ClientSecret string
-	RedirectURL  string
+	ClientID     string `json: "client_id"`
+	ClientSecret string `json: "client_secret"`
+	RedirectURL  string `json: "redirect_url"`
 }
 
 type Medias struct {
