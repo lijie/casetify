@@ -1439,7 +1439,7 @@ twttr.conversion.trackPid('l4qnv');
 		<div class="drop-area drop-min t-cell vertical-middle text-center">
 			<span id="drag-n-drop-msg">{{#__}}Drop your pictures here!{{/__}}</span> <br>
 			<button class="upload-btn btn second-color mt1">{{#__}}Or upload{{/__}}</button>
-			<form id="hiddenForm" class="hide" method="POST" action="/controllers/FileUpload.php" enctype="multipart/form-data" target="myIframe">
+			<form id="hiddenForm" class="hide" method="POST" action="/upload" enctype="multipart/form-data" target="myIframe">
 				<input class="hidden-uploader" name="fileUploader" type="file" multiple> </input>
 				<input type="hidden" name="fn" value="uploadFile" />
 				<input type="hidden" name="ajax" value="Y"/>
