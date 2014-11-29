@@ -1739,7 +1739,7 @@ UploadPanelState = Backbone.Model.extend({
             $.each(a,
             function(a, f) {
                 f.type.match(/image.*/) ? (window.FileReader && (reader = new FileReader, reader.readAsDataURL(f)), formdata && formdata.append("fileUploader", f), formdata.append("fn", "uploadFile"), formdata.append("ajax", "Y"), formdata.append("uploadType", ConstantsManager.FILE_UPLOAD_TYPE_USER_IMAGE), $.ajax({
-                    url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "getuploadlist",
+                    url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "upload",
                     type: "POST",
                     data: formdata,
                     processData: !1,
@@ -1826,7 +1826,7 @@ UploadPanelState = Backbone.Model.extend({
     deletePhoto: function(a) {
         var b = this;
         $.ajax({
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "getuploadlist",
+            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "upload",
             type: "POST",
             dataType: "json",
             cache: !1,
@@ -4489,4 +4489,3 @@ preloadFont("FONT_Raleway_Medium"),
 preloadFont("FONT_Raleway_ExtraLight"),
 preloadFont("FONT_AbrahamLincoln"),
 preloadFont("FONT_LeagueGothic_Regular");
-
