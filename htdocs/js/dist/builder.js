@@ -951,7 +951,7 @@ FacebookPanelModel = Backbone.Model.extend({
     connectFacebook: function(a, b, c) {
         ExternalSourceAccessManager.getUserInfo(2, $.proxy(function(b) {
             Server.isLogin || (Server.facebookConnected = !0, Server.isLogin = !0),
-            b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/Mapper.php/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
+            b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/mapper/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
             a && $.proxy(a, c)()
         },
         this), $.proxy(function(a) {
@@ -1358,7 +1358,7 @@ ImageModel = Backbone.Model.extend({
             this))
         },
         this, a),
-        a.src = this.get("lowRec").match("^/controllers/Mapper.php") ? this.get("lowRec") : getSameOriginUrl(this.get("lowRec"))
+        a.src = this.get("lowRec").match("^/controllers/mapper") ? this.get("lowRec") : getSameOriginUrl(this.get("lowRec"))
     },
     loadHighRecImg: function() {
         var a = new Image;
@@ -1370,7 +1370,7 @@ ImageModel = Backbone.Model.extend({
             this))
         },
         this, a),
-        a.src = this.get("highRec").match("^/controllers/Mapper.php") ? this.get("highRec") : getSameOriginUrl(this.get("highRec"))
+        a.src = this.get("highRec").match("^/controllers/mapper") ? this.get("highRec") : getSameOriginUrl(this.get("highRec"))
     },
     addLowRecCallback: function(a) {
         this.lowRecCallback || (this.lowRecCallback = []);
@@ -1419,7 +1419,7 @@ InstagramPanelModel = Backbone.Model.extend({
     connectInstagram: function(a, b, c) {
         ExternalSourceAccessManager.getUserInfo(1, $.proxy(function(b) {
             Server.isLogin || (Server.instagramConnected = !0, Server.isLogin = !0),
-            b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/Mapper.php/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
+            b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/mapper/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
             a && $.proxy(a, c)()
         },
         this), $.proxy(function() {
@@ -4444,7 +4444,7 @@ if ($needHelp.click(function() {
         c = 0;
         for (index in a) {
             var d = b ? b[index] : a[index],
-            e = a[index].match("^/controllers/Mapper.php") ? a[index] : getThumbnailUrl(a[index]),
+            e = a[index].match("^/controllers/mapper") ? a[index] : getThumbnailUrl(a[index]),
             f = new ImageModel({
                 lowRec: d,
                 highRec: a[index],
