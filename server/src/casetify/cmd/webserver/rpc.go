@@ -77,11 +77,13 @@ func FindCreateUser(rid string) (*UserInfo, error) {
 		fmt.Printf("read instagram.json err %v\n", err)
 		return nil, err
 	}
+	fmt.Println(b)
 	conf := &instagram.Config{}
 	if err = json.Unmarshal(b, conf); err != nil {
 		fmt.Printf("unmarshal instagram.json err %v\n", err)
 		return nil, err
 	}
+	fmt.Printf("instagram conf %v\n", conf)
 	info.InstagramApi = instagram.NewInstagram(conf)
 	usermap[rid] = info
 	return info, nil

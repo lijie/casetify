@@ -142,7 +142,7 @@ func initWebService() {
 		http.HandleFunc("/order", HandleOrder)
 		http.HandleFunc("/upload", HandleUpload2)
 		http.HandleFunc("/getuploadlist", HandleGetUploadList)
-		http.HandleFunc("/mapper", HandleMapper)
+		http.HandleFunc("/controllers/mapper", HandleMapper)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))

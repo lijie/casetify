@@ -142,10 +142,11 @@ func unmarshalItemOption() map[string][]map[string]string {
 }
 
 func HandleDesign(w http.ResponseWriter, req *http.Request) {
+	user, err := RestoreUserInfoFromCookie(w, req)
+	if err == nil {
+		fmt.Println(user.InstagramApi.ApiURL(user.Rid))
+	}
 	sub := strings.Split(req.RequestURI, "/")
-	fmt.Println(sub)
-	fmt.Println(len(sub))
-
 	phone_type := "iphone6"
 	if len(sub) >= 3 {
 		phone_type = sub[2]
