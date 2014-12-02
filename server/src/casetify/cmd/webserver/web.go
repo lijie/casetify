@@ -119,6 +119,23 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 func HandleOrder(w http.ResponseWriter, req *http.Request) {
 }
 
+func HandleUser(w http.ResponseWriter, req *http.Request) {
+	fn := req.FormValue("state")
+	if fn == "getUserAlbumPhoto" {
+//		HandleGetAlbum(w, req)
+		return
+	}
+	if fn == "getUserPhoto" {
+//		HandleGetAlbumPhoto(w, req)
+		return
+	}
+	if fn == "getUserPhoto" {
+//		HandleGetAlbumPhoto(w, req)
+		return
+	}
+	// fn == "getUserContactList"
+}
+
 var port = flag.Int("port", 80, "default port")
 var rootDir = flag.String("rootdir", "", "default root dir")
 
@@ -143,6 +160,7 @@ func initWebService() {
 		http.HandleFunc("/upload", HandleUpload2)
 		http.HandleFunc("/getuploadlist", HandleGetUploadList)
 		http.HandleFunc("/controllers/mapper", HandleMapper)
+		http.HandleFunc("/user", HandleUser)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
