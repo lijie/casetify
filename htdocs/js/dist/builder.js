@@ -236,6 +236,8 @@ var BuilderPageState = Backbone.Model.extend({
         }
     },
     saveDesign: function(a, b, c) {
+        this.test();
+        return;
         var d = this.get("currentTitle"),
         e = this.get("currentTag"),
         f = this.get("currentLayout"),
@@ -433,7 +435,7 @@ var BuilderPageState = Backbone.Model.extend({
             g.sendRawImage(a, c, d, e, f)
         });
         var i = navigator.userAgent;
-        h.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/ImageEx.php?id=" + a + "&ua=" + i, !0),
+        h.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/save_image?id=" + a + "&ua=" + i, !0),
         h.setRequestHeader("Content-Type", "multipart/form-data-"),
         h.setRequestHeader("X-File-Name", a),
         h.setRequestHeader("X-File-Size", b.length),
@@ -450,7 +452,7 @@ var BuilderPageState = Backbone.Model.extend({
         !1),
         g.addEventListener("load",
         function() {
-            f.verifySendImage(a, c, d, e)
+            f.verifySendImage(g.responseText, a, b, c, d, e);
         });
         var h = navigator.userAgent;
         g.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "save_image?id=" + a + "&is_raw=Y&ua=" + h, !0),
@@ -460,22 +462,31 @@ var BuilderPageState = Backbone.Model.extend({
         g.setRequestHeader("X-File-Type", "image/png"),
         g.send(b)
     },
-    verifySendImage: function(a, b, c, d) {
-        var e = this;
-        $.ajax({
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/Artwork.php",
-            method: "GET",
-            data: {
-                fn: "verify",
-                id: a,
-                isSubmitToChallenge: e.get("enterChallenge") ? "Y": "N",
-                isPublic: e.get("private") ? 0 : 1
-            },
-            success: function(f) {
-                e.app.designPanel.currentView.showProgress(89),
-                e.get("currentTag") ? $.proxy(e.updateTag, e)(a, f, b, c, d) : $.proxy(e.togglePublic, e)(a, f, b, c, d)
-            }
-        })
+    
+    verifySendImage: function(data, a, b, c, d, e) {
+        f.app.designPanel.currentView.showProgress(100),
+            $.proxy(c, e)();
+        var h = g.full_name ? g.full_name: g.username;
+        var i = JSON.parse(data);
+        f.get("currentSubscription") && cartModel.addSubscriptionToCart(f.get("currentSubscription").system_record_tag),
+        Server.isAdminEdit && (window.location.href = "/admin/root/cs/editArtworkCallback.php?artwork_id=" + a);
+        var j = ConstantsManager.CASETAGRAM_BASE_URL_WITHOUT_LOGIN + "/showcase/" + b + "/r/" + g.referral.code,
+            k = new SaveDesignModal({
+                app: f.app,
+                preview: i.preview_url.L,
+                artworkId: a,
+                unitPrice: i.unit_price,
+                itemOption: i.item_option,
+                artworkUrlName: b,
+                deviceShortName: i.device_short_name,
+                shareLink: j,
+                shareImage: i.preview_url.L,
+                shareName: f.get("enterChallenge") ? __("Vote for " + h + "'s awesome design on Casetify") : __("Check out my Casetify. Use this link & Get $<!--inviteCredit--> off").replace("<!--inviteCredit-->", ConstantsManager.USER_INVITE_CREDIT_OF_SINGLE_REFERRAL),
+                twitterShareMessage: f.get("enterChallenge") ? __("Vote for " + h + "'s awesome design on Casetify") : __("Check out my new @Casetify using Instagram & Facebook photos. Make yours and get $<!--inviteCredit--> off: ").replace("<!--inviteCredit-->", ConstantsManager.USER_INVITE_CREDIT_OF_SINGLE_REFERRAL) + j + " via @Casetify",
+                pinitShareMessage: f.get("enterChallenge") ? __("Vote for " + h + "'s awesome design on Casetify") : __("Check out my new @Casetify using Instagram & Facebook photos. Make yours and get $<!--inviteCredit--> off: ").replace("<!--inviteCredit-->", ConstantsManager.USER_INVITE_CREDIT_OF_SINGLE_REFERRAL) + j,
+                shareDesc: __(f.get("enterChallenge") ? h + " created a rad case on Casetify, a social design service where you can personalize your own case using Instagram, Facebook and personal photos. Every vote counts, so make sure to show your love today.": "Make your case with Facebook photos")
+            });
+        f.app.saveDesignModalView.show(k)
     },
     updateTag: function(a, b, c, d, e) {
         var f = this;
