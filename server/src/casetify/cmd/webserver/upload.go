@@ -228,18 +228,13 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	defer req.Body.Close()
 
-	user, err := RestoreUserInfoFromCookie(w, req)
-	if err != nil {
-		fmt.Printf("read user info err %v\n", err)
-		return
-	}
-
-	// TODO: need email!!
-	if user.Email == "" {
-		user.Email = "test@test.com"
-		fmt.Printf("user email err\n")
+	israw := req.FormValue("is_raw")
+	id := req.FormValue("id")
+//	user, err := RestoreUserInfoFromCookie(w, req)
+//	if err != nil {
+//		fmt.Printf("read user info err %v\n", err)
 //		return
-	}
+//	}
 
 	header := []byte("data:image/png;base64,")
 	b := make([]byte, len(header))
@@ -251,10 +246,22 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 		fmt.Printf("base64 decoder err\n")
 		return
 	}
-	name := newImgName(user.Email)
-	f, err := os.OpenFile("../htdocs/data/preview/" + name + ".png", os.O_RDWR | os.O_CREATE, 0666)
+	if israw == "Y" {
+		ci := FindCaseInfo(id)
+		if ci == nil {
+			return
+		}
+		out, err := json.Marshal(ci)
+		if err != nil {
+			fmt.Printf("marshal caseinfo err %v\n", err)
+			return
+		}
+		w.Write(out)
+		id = id + "_raw"
+	}
+	f, err := os.OpenFile("../htdocs/data/preview/" + id + ".png", os.O_RDWR | os.O_CREATE, 0666)
 	if err != nil {
-		fmt.Printf("save file %s err %v\n", name, err)
+		fmt.Printf("save file %s err %v\n", id, err)
 		return
 	}
 	defer f.Close()
@@ -263,5 +270,19 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 
 func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
-	io.WriteString(w, "aaaaaaaa")
+	user, err := RestoreUserInfoFromCookie(w, req)
+	if err != nil {
+		fmt.Printf("read user info err %v\n", err)
+		return
+	}
+	
+	// TODO: need email!!
+	if user.Email == "" {
+		user.Email = "test@test.com"
+		fmt.Printf("user email err\n")
+//		return
+	}
+
+	c := NewCaseInfo(user.Email, "261")
+	io.WriteString(w, c.CaseID)
 }

@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-// TODO(lijie): need lock
-var casemap map[string]*CaseConf
 var casefile caseFile
 
 type caseFile struct {

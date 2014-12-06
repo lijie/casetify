@@ -1,39 +1,63 @@
 package main
 
 import (
-	"net/http"
-	"code.google.com/p/goauth2/oauth"
-	"fmt"
-	"time"
-	"io"
-	_ "github.com/gorilla/sessions"
-	"casetify/instagram"
 	"casetify/facebook"
+	"casetify/instagram"
 	myoauth "casetify/oauth"
+	"code.google.com/p/goauth2/oauth"
 	"crypto/sha1"
 	"encoding/hex"
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"fmt"
+	_ "github.com/gorilla/sessions"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"time"
 )
 
 type UserInfo struct {
 	// random user id
-	Rid string
-	Email string
+	Rid            string
+	Email          string
 	InstagramToken *oauth.Token
-	FacebookToken *oauth.Token
-	InstagramApi *instagram.Instagram
-	FacebookApi *facebook.Facebook
-	IsLogin bool
-	UploadList []*FileUploadInfo
+	FacebookToken  *oauth.Token
+	InstagramApi   *instagram.Instagram
+	FacebookApi    *facebook.Facebook
+	IsLogin        bool
+	UploadList     []*FileUploadInfo
+}
+
+type CaseInfo struct {
+	CaseID                 string            `json:"id"`
+	UserID                 string            `json:"user_id"`
+	CreateTime             time.Time         `json:"create_time"`
+	ItemOption             string            `json:"item_option"`
+	UnitPrice              string            `json:"unit_price"`
+	ItemName               string            `json:"item_name"`
+	DeviceTypeID           string            `json:"device_type_id"`
+	DeviceShortName        string            `json:"device_short_name"`
+	DeviceShortDescription string            `json:"device_short_description"`
+	PreviewURL             map[string]string `json:"preview_url"`
 }
 
 // TODO(lijie): need lock
+
+// 全局用户信息
+// RID是其检索key
+// 保存的是最近/正在访问当前网站的用户信息
+// 因为RID是随机生成的key
+// 所以该map包含了注册和非注册用户
 var usermap map[string]*UserInfo
+
+// casemap 保存了用户save design后, 写入数据库之前
+// 生成的case信息, 一旦写入数据库, 对应的case信息则可以删掉
+var casemap map[string]*CaseInfo
 
 func init() {
 	usermap = make(map[string]*UserInfo)
+	casemap = make(map[string]*CaseInfo)
 }
 
 func (info *UserInfo) HasInstagramToken() bool {
@@ -124,8 +148,8 @@ func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 	}
 	fmt.Printf("new RID %s\n", ridstr)
 
-	session.Values["rid"] = ridstr;
-	session.Save(req, w);
+	session.Values["rid"] = ridstr
+	session.Save(req, w)
 	return ridstr, nil
 }
 
@@ -147,7 +171,7 @@ func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 //		// no rid, create
 //		rid = createRid(req)
 //		// create userinfo
-//		
+//
 //	}
 //}
 
@@ -162,6 +186,32 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 		return nil, err
 	}
 
-//	fmt.Printf("userinfo %v\n", info)
+	//	fmt.Printf("userinfo %v\n", info)
 	return info, nil
+}
+
+func GenerateCaseID(userid string) string {
+	return "11223344"
+}
+
+func FindCaseInfo(caseid string) *CaseInfo {
+	if c, ok := casemap[caseid]; ok {
+		return c
+	}
+	return nil
+}
+
+func NewCaseInfo(userid string, phoneid string) *CaseInfo {
+	c := &CaseInfo{
+		CaseID: GenerateCaseID(userid),
+		UserID: userid,
+		CreateTime: time.Now(),
+		// TODO
+		ItemOption: "261",
+		UnitPrice: "39.5",
+		// TODO
+		ItemName: "itemname",
+	}
+	casemap[c.CaseID] = c
+	return c
 }
