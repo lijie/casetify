@@ -1116,7 +1116,8 @@ ExternalSourceAccessManager = {
         f = "boolean" == typeof f ? f: !1,
         this.callbackAuthenticateSuccess = b,
         this.callbackAuthenticateFail = c;
-        var g = ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + ConstantsManager.USER_AUTH_CONTROLLER_AUTHENTICATION_PATH + "?fn=authenticateUser&" + ConstantsManager.USER_AUTH_SIGN_IN_SOURCE_PARAM_NAME + "=" + a + (e > 0 ? "&mergeUserId=" + e: "") + "&displayPopup=" + (d ? "N": "Y") + (ClientDeviceManager && ClientDeviceManager.isMobileAgent() ? "&isMobile=Y": "") + "&isRetrieveExternalDataOnly=" + (f ? "Y": "N");
+        //var g = ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + ConstantsManager.USER_AUTH_CONTROLLER_AUTHENTICATION_PATH + "?fn=authenticateUser&" + ConstantsManager.USER_AUTH_SIGN_IN_SOURCE_PARAM_NAME + "=" + a + (e > 0 ? "&mergeUserId=" + e: "") + "&displayPopup=" + (d ? "N": "Y") + (ClientDeviceManager && ClientDeviceManager.isMobileAgent() ? "&isMobile=Y": "") + "&isRetrieveExternalDataOnly=" + (f ? "Y": "N");
+        var g = '/auth?fn=' + this.targetType;
         return d ? void(window.location = g + "&returnFromExternalSource=Y") : ExternalSourceAccessManager.proceedPopupAuthentication(g, a)
     },
     resetIFrameCheckingState: function() {
