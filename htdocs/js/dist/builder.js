@@ -334,7 +334,7 @@ var BuilderPageState = Backbone.Model.extend({
                 void(_gaq && _gaq.push(["_trackPageview", "/ga_builder_warning_image_duplicated"]))
             }
         }
-        var y = UserProfileManager.getUserInfo();
+        /*var y = UserProfileManager.getUserInfo();
         if (this.set("userInfo", y), y == ConstantsManager.USER_INFO_UNABLE_TO_GET_USER_PROFILE_ERROR && (y = null), !y) {
             var z = new SignupModalView({
                 app: this.app,
@@ -368,12 +368,12 @@ var BuilderPageState = Backbone.Model.extend({
                 u.set("currentTitle", d),
                 $.proxy(u.saveDesign, u, a, b, c)()
             }
-        });
+        });*/
         this.app.designPanel.currentView.showProgress(7),
         this.app.designPanel.currentView.model.computeOverallImageQuality();
         var u = this;
         $.ajax({
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/Data.php",
+            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "save_data",
             method: "POST",
             data: {
                 itemType: saveData.itemType,
@@ -2920,10 +2920,10 @@ ControlPanel = Backbone.Marionette.ItemView.extend({
         return ! 1
     },
     saveDesignButtonClicked: function() {
-        return _gaq && _gaq.push(["_trackPageview", "/ga_builder_click_save_design"]),
-        this.app.designPanel.currentView.showProgress(0),
-        this.pageModel.saveDesign(this.saveDesignSuccess, this.saveDesignFailed, this),
-        !1
+        //return _gaq && _gaq.push(["_trackPageview", "/ga_builder_click_save_design"]),
+        //this.app.designPanel.currentView.showProgress(0);
+        this.pageModel.saveDesign(this.saveDesignSuccess, this.saveDesignFailed, this);
+        return false;
     },
     saveDesignSuccess: function() {
         this.app.designPanel.currentView.hideProgress()
