@@ -451,7 +451,7 @@ var BuilderPageState = Backbone.Model.extend({
         !1),
         g.addEventListener("load",
         function() {
-            f.verifySendImage(g.responseText, a, b, c, d, e);
+            f.verifySendImage(g.responseText, a, '', c, d, e);
         });
         var h = navigator.userAgent;
         g.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "save_image?id=" + a + "&is_raw=Y&ua=" + h, !0),
@@ -463,13 +463,15 @@ var BuilderPageState = Backbone.Model.extend({
     },
     
     verifySendImage: function(data, a, b, c, d, e) {
+        var f = this, g = this.get("userInfo");
+
         f.app.designPanel.currentView.showProgress(100),
             $.proxy(c, e)();
-        var h = g.full_name ? g.full_name: g.username;
+        var h = '';
         var i = JSON.parse(data);
         f.get("currentSubscription") && cartModel.addSubscriptionToCart(f.get("currentSubscription").system_record_tag),
         Server.isAdminEdit && (window.location.href = "/admin/root/cs/editArtworkCallback.php?artwork_id=" + a);
-        var j = ConstantsManager.CASETAGRAM_BASE_URL_WITHOUT_LOGIN + "/showcase/" + b + "/r/" + g.referral.code,
+        var j = ConstantsManager.CASETAGRAM_BASE_URL_WITHOUT_LOGIN + "/showcase/" + b + "/r/" + '',
             k = new SaveDesignModal({
                 app: f.app,
                 preview: i.preview_url.L,
@@ -554,7 +556,7 @@ var BuilderPageState = Backbone.Model.extend({
                 var i = JSON.parse(d);
                 f.get("currentSubscription") && cartModel.addSubscriptionToCart(f.get("currentSubscription").system_record_tag),
                 Server.isAdminEdit && (window.location.href = "/admin/root/cs/editArtworkCallback.php?artwork_id=" + a);
-                var j = ConstantsManager.CASETAGRAM_BASE_URL_WITHOUT_LOGIN + "/showcase/" + b + "/r/" + g.referral.code,
+                var j = ConstantsManager.CASETAGRAM_BASE_URL_WITHOUT_LOGIN + "/showcase/" + b + "/r/" + '',
                 k = new SaveDesignModal({
                     app: f.app,
                     preview: i.preview_url.L,
