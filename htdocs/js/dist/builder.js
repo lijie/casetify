@@ -236,8 +236,7 @@ var BuilderPageState = Backbone.Model.extend({
         }
     },
     saveDesign: function(a, b, c) {
-        this.test();
-        return;
+
         var d = this.get("currentTitle"),
         e = this.get("currentTag"),
         f = this.get("currentLayout"),
@@ -435,7 +434,7 @@ var BuilderPageState = Backbone.Model.extend({
             g.sendRawImage(a, c, d, e, f)
         });
         var i = navigator.userAgent;
-        h.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/save_image?id=" + a + "&ua=" + i, !0),
+        h.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "save_image?id=" + a + "&ua=" + i, !0),
         h.setRequestHeader("Content-Type", "multipart/form-data-"),
         h.setRequestHeader("X-File-Name", a),
         h.setRequestHeader("X-File-Size", b.length),
