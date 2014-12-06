@@ -45,46 +45,21 @@ type designDataSet struct {
 	ServerDevices string
 	ServerItemOption string
 	DefaultDevice string
+	DeviceName string
 	IsLogin bool
+	IsFacebookLogin bool
+	IsInstagramLogin bool
 }
 
-func fillDataWithUserInfo(data *DataSet, info *UserInfo) {
+func fillDataWithUserInfo(data *designDataSet, info *UserInfo) {
 	// data.Uid = info.Uid
 	if info.HasInstagramToken() {
-		data.HasInstagramToken = true
+		data.IsInstagramLogin = true
 	}
 	if info.HasFacebookToken() {
-		data.HasFacebookToken = true
+		data.IsFacebookLogin = true
 	}
-
-	data.InstagramApiUrl = info.InstagramApi.ApiURL(info.Rid)
-	fmt.Printf("instagram api url:\n%s\n", data.InstagramApiUrl)
-}
-
-func handlePhoneName(w http.ResponseWriter, req *http.Request, phone_type string) {
-	caseconf := GetCaseConf(phone_type)
-	if caseconf == nil {
-		caseconf = GetCaseConf("iphone6")
-	}
-
-	data := &DataSet{
-		PhoneName:     caseconf.Name,
-		PhoneDispName: caseconf.DispName,
-		CaseWidth:     caseconf.CaseWidth,
-		CaseHeight:    caseconf.CaseHeight,
-	}
-
-	info, err := RestoreUserInfoFromCookie(w, req)
-	if err == nil {
-		fillDataWithUserInfo(data, info)
-	}
-
-	t, err := template.ParseFiles("../html/design.html")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	t.Execute(w, data)
+	data.IsLogin = false
 }
 
 func readJson(path string) []byte {
@@ -167,6 +142,9 @@ func HandleDesign(w http.ResponseWriter, req *http.Request) {
 	data.ServerItemOption = string(b)
 
 	data.DefaultDevice = phone_type
+	data.DeviceName = phone_type
+
+	fillDataWithUserInfo(data, user)
 	
 	err = t.Execute(w, data)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gedex/go-instagram/instagram"
 	"net/http"
+	myoauth "casetify/oauth"
 )
 
 var InstagramClientID = "98961ff07b1e4974b0f88f561ba2b18d"
@@ -12,14 +13,8 @@ var InstagramSecret = "PUT CLIENT SECRET HERE"
 
 type Instagram struct {
 	client *instagram.Client
-	conf   *Config
+	conf   *myoauth.Config
 	oconf  oauth.Config
-}
-
-type Config struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	RedirectURL  string `json:"redirect_url"`
 }
 
 type Medias struct {
@@ -84,7 +79,7 @@ func (ig *Instagram) AuthCodeURL(code string) string {
 	return ig.oconf.AuthCodeURL(code)
 }
 
-func NewInstagram(conf *Config) *Instagram {
+func NewInstagram(conf *myoauth.Config) *Instagram {
 	ig := &Instagram{
 		conf: conf,
 	}

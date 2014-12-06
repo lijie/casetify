@@ -65,6 +65,32 @@ func HandleTestGet(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(values["param"])
 }
 
+func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
+	fmt.Printf("HandleFacebookRedirect %v\n", req)
+
+	// get uid from request
+	state := strings.Split(req.FormValue("state"), "|")
+	if len(state) < 2 {
+		fmt.Printf("no state\n")
+		return
+	}
+
+	info := FindUser(state[1])
+	if info == nil {
+		return
+	}
+
+	token, err := info.InstagramApi.GetAccessToken(w, req)
+	if err != nil {
+		fmt.Printf("GetAccessToken err %v\n", err)
+		return
+	}
+
+	// save token
+	info.FacebookToken = token
+	fmt.Printf("Get instagram token %v for user %s\n", token, info.Rid)
+}
+
 // HandleInstagramRedirect 处理instagram的授权应答
 // 失败, 输出失败页面
 // 成功, 主动拉取用户最新的N张照片并展示供用户选择
@@ -151,8 +177,8 @@ func HandleAuth(w http.ResponseWriter, req *http.Request) {
 		url := ui.InstagramApi.AuthCodeURL("getcode|" + ui.Rid)
 		http.Redirect(w, req, url, http.StatusFound)
 	} else if fn == "facebook" {
-		// url := ui.FacebookApi.AuthCodeURL("getcode|" + ui.Rid)
-		// http.Redirect(w, req, url, http.StatusFound)
+		url := ui.FacebookApi.AuthCodeURL("getcode|" + ui.Rid)
+		http.Redirect(w, req, url, http.StatusFound)
 	}
 }
 

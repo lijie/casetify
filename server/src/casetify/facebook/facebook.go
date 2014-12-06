@@ -1,6 +1,8 @@
 package facebook
 
 import (
+	myoauth "casetify/oauth"
+	"code.google.com/p/goauth2/oauth"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,13 +10,28 @@ import (
 )
 
 type Facebook struct {
-	token string
+	token *oauth.Token
+	conf  *myoauth.Config
+	oconf oauth.Config
 }
 
-func NewFacebook(token string) *Facebook {
-	return &Facebook{
-		token: token,
+func NewFacebook(conf *myoauth.Config) *Facebook {
+	fb := &Facebook{
+		conf: conf,
 	}
+	fb.oconf = oauth.Config{
+		ClientId:     fb.conf.ClientID,
+		ClientSecret: fb.conf.ClientSecret,
+		Scope:        "basic,user_photos,public_profile",
+		AuthURL:      "https://www.facebook.com/dialog/oauth",
+		TokenURL:     "https://graph.facebook.com/oauth/access_token",
+		RedirectURL:  fb.conf.RedirectURL,
+	}
+	return fb
+}
+
+func (fb *Facebook) AuthCodeURL(code string) string {
+	return fb.oconf.AuthCodeURL(code)
 }
 
 type AlbumsData struct {
@@ -29,7 +46,7 @@ type Albums struct {
 }
 
 func (fb *Facebook) GetAlbums() ([]AlbumsData, error) {
-	url := fmt.Sprintf("https://graph.facebook.com/v2.2/me/albums?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", fb.token)
+	url := fmt.Sprintf("https://graph.facebook.com/v2.2/me/albums?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", fb.token.AccessToken)
 	albums := &Albums{}
 	fb.Do(url, albums)
 	fmt.Println(albums)
@@ -58,8 +75,8 @@ type PhotosData struct {
 	Width   int          `json:"width"`
 }
 
-func (fb *Facebook) GetAlbumPhotos(albumid string) ([]PhotosData, error){
-	url := fmt.Sprintf("https://graph.facebook.com/v2.2/1951896994726/photos?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", fb.token)
+func (fb *Facebook) GetAlbumPhotos(albumid string) ([]PhotosData, error) {
+	url := fmt.Sprintf("https://graph.facebook.com/v2.2/1951896994726/photos?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", fb.token.AccessToken)
 	photos := &Photos{}
 	fb.Do(url, photos)
 	fmt.Println(photos)
@@ -81,3 +98,18 @@ func (fb *Facebook) Do(url string, data interface{}) error {
 	return json.Unmarshal(body, data)
 }
 
+func (fb *Facebook) GetAccessToken(w http.ResponseWriter, req *http.Request) (*oauth.Token, error) {
+	fmt.Printf("exchange code %s\n", req.FormValue("code"))
+
+	t := &oauth.Transport{Config: &fb.oconf}
+	token, err := t.Exchange(req.FormValue("code"))
+	fmt.Println(token)
+	fmt.Println(err)
+
+	if err != nil {
+		fmt.Printf("get token err %v\n", err)
+		return nil, err
+	}
+	fb.token = token
+	return token, nil
+}

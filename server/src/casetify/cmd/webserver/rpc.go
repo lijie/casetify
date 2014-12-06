@@ -9,6 +9,8 @@ import (
 	"log"
 	_ "github.com/gorilla/sessions"
 	"casetify/instagram"
+	"casetify/facebook"
+	myoauth "casetify/oauth"
 	"crypto/sha1"
 	"encoding/hex"
 	"os"
@@ -23,6 +25,7 @@ type UserInfo struct {
 	InstagramToken *oauth.Token
 	FacebookToken *oauth.Token
 	InstagramApi *instagram.Instagram
+	FacebookApi *facebook.Facebook
 	IsLogin bool
 	UploadList []*FileUploadInfo
 }
@@ -59,6 +62,33 @@ func FindUser(rid string) *UserInfo {
 	return nil
 }
 
+func initAPI(apiname string, info *UserInfo) error {
+	f, err := os.Open("conf/" + apiname + ".json")
+	if err != nil {
+		fmt.Printf("open %s.json err %v\n", apiname, err)
+		return err
+	}
+	defer f.Close()
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		fmt.Printf("read %s.json err %v\n", apiname, err)
+		return err
+	}
+	fmt.Println(b)
+	conf := &myoauth.Config{}
+	if err = json.Unmarshal(b, conf); err != nil {
+		fmt.Printf("unmarshal %s.json err %v\n", apiname, err)
+		return err
+	}
+	fmt.Printf("%s conf %v\n", apiname, conf)
+	if apiname == "instagram" {
+		info.InstagramApi = instagram.NewInstagram(conf)
+	} else if apiname == "facebook" {
+		info.FacebookApi = facebook.NewFacebook(conf)
+	}
+	return nil
+}
+
 func FindCreateUser(rid string) (*UserInfo, error) {
 	if info, ok := usermap[rid]; ok {
 		return info, nil
@@ -66,25 +96,8 @@ func FindCreateUser(rid string) (*UserInfo, error) {
 	info := &UserInfo{
 		Rid: rid,
 	}
-	f, err := os.Open("conf/instagram.json")
-	if err != nil {
-		fmt.Printf("open instagram.json err %v\n", err)
-		return nil, err
-	}
-	defer f.Close()
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		fmt.Printf("read instagram.json err %v\n", err)
-		return nil, err
-	}
-	fmt.Println(b)
-	conf := &instagram.Config{}
-	if err = json.Unmarshal(b, conf); err != nil {
-		fmt.Printf("unmarshal instagram.json err %v\n", err)
-		return nil, err
-	}
-	fmt.Printf("instagram conf %v\n", conf)
-	info.InstagramApi = instagram.NewInstagram(conf)
+	initAPI("instagram", info)
+	initAPI("facebook", info)
 	usermap[rid] = info
 	return info, nil
 }

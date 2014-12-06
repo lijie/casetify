@@ -1,0 +1,5 @@
+{
+    "client_id": "1515791822007784",
+    "client_secret": "",
+    "redirect_url": "http://127.0.0.1:8082/facebook_redirect_uri"
+}
