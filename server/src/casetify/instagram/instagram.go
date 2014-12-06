@@ -13,6 +13,7 @@ var InstagramSecret = "PUT CLIENT SECRET HERE"
 type Instagram struct {
 	client *instagram.Client
 	conf   *Config
+	oconf  oauth.Config
 }
 
 type Config struct {
@@ -55,18 +56,18 @@ func (ig *Instagram) RecentMedia(token *oauth.Token, count int) (*Medias, error)
 }
 
 func (ig *Instagram) GetAccessToken(w http.ResponseWriter, req *http.Request) (*oauth.Token, error) {
-	config := &oauth.Config{
-		ClientId:     ig.conf.ClientID,
-		ClientSecret: ig.conf.ClientSecret,
-		Scope:        "basic",
-		AuthURL:      "https://api.instagram.com/oauth/authorize/",
-		TokenURL:     "https://api.instagram.com/oauth/access_token",
-		RedirectURL:  ig.conf.RedirectURL,
-	}
+//	config := &oauth.Config{
+//		ClientId:     ig.conf.ClientID,
+//		ClientSecret: ig.conf.ClientSecret,
+//		Scope:        "basic",
+//		AuthURL:      "https://api.instagram.com/oauth/authorize/",
+//		TokenURL:     "https://api.instagram.com/oauth/access_token",
+//		RedirectURL:  ig.conf.RedirectURL,
+//	}
 
 	fmt.Printf("exchange code %s\n", req.FormValue("code"))
 
-	t := &oauth.Transport{Config: config}
+	t := &oauth.Transport{Config: &ig.oconf}
 	token, err := t.Exchange(req.FormValue("code"))
 	fmt.Println(token)
 	fmt.Println(err)
@@ -79,6 +80,10 @@ func (ig *Instagram) GetAccessToken(w http.ResponseWriter, req *http.Request) (*
 	return token, nil
 }
 
+func (ig *Instagram) AuthCodeURL(code string) string {
+	return ig.oconf.AuthCodeURL(code)
+}
+
 func NewInstagram(conf *Config) *Instagram {
 	ig := &Instagram{
 		conf: conf,
@@ -86,6 +91,16 @@ func NewInstagram(conf *Config) *Instagram {
 	ig.client = instagram.NewClient(nil)
 	ig.client.ClientID = ig.conf.ClientID
 	ig.client.ClientSecret = ig.conf.ClientSecret
+
+	ig.oconf = oauth.Config{
+		ClientId:     ig.conf.ClientID,
+		ClientSecret: ig.conf.ClientSecret,
+		Scope:        "basic",
+		AuthURL:      "https://api.instagram.com/oauth/authorize/",
+		TokenURL:     "https://api.instagram.com/oauth/access_token",
+		RedirectURL:  ig.conf.RedirectURL,
+	}
+	
 	// ig.client.AccessToken = ig.AccessToken
 	return ig
 }

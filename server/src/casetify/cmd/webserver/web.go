@@ -119,8 +119,11 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 func HandleOrder(w http.ResponseWriter, req *http.Request) {
 }
 
+func HandlePreview(w http.ResponseWriter, req *http.Request) {
+}
+
 func HandleUser(w http.ResponseWriter, req *http.Request) {
-	fn := req.FormValue("state")
+	fn := req.FormValue("fn")
 	if fn == "getUserAlbumPhoto" {
 //		HandleGetAlbum(w, req)
 		return
@@ -134,6 +137,23 @@ func HandleUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// fn == "getUserContactList"
+}
+
+func HandleAuth(w http.ResponseWriter, req *http.Request) {
+	ui, err := RestoreUserInfoFromCookie(w, req)
+	if err != nil {
+		fmt.Printf("read user info err %v\n", err)
+		return
+	}
+
+	fn := req.FormValue("fn")
+	if fn == "instagram" {
+		url := ui.InstagramApi.AuthCodeURL("getcode|" + ui.Rid)
+		http.Redirect(w, req, url, http.StatusFound)
+	} else if fn == "facebook" {
+		// url := ui.FacebookApi.AuthCodeURL("getcode|" + ui.Rid)
+		// http.Redirect(w, req, url, http.StatusFound)
+	}
 }
 
 var port = flag.Int("port", 80, "default port")
@@ -161,6 +181,8 @@ func initWebService() {
 		http.HandleFunc("/getuploadlist", HandleGetUploadList)
 		http.HandleFunc("/controllers/mapper", HandleMapper)
 		http.HandleFunc("/user", HandleUser)
+		http.HandleFunc("/uploadpreview", HandlePreview)
+		http.HandleFunc("/auth", HandleAuth)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
