@@ -949,12 +949,8 @@ FacebookPanelModel = Backbone.Model.extend({
         this.pageModel = a.pageModel
     },
     connectFacebook: function(a, b, c) {
-        ExternalSourceAccessManager.getUserInfo(2, $.proxy(function(b) {
-            Server.isLogin || (Server.facebookConnected = !0, Server.isLogin = !0),
-            b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/mapper/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
-            a && $.proxy(a, c)()
-        },
-        this), $.proxy(function(a) {
+        ExternalSourceAccessManager.targetType = 'facebook';
+        ExternalSourceAccessManager.authenticateUser(2, ExternalSourceAccessManager.getUserInfo, $.proxy(function(a) {
             b && $.proxy(b, c)(a)
         },
         this), !1, null, Server.isLogin && !Server.facebookConnected)
@@ -1417,12 +1413,9 @@ InstagramPanelModel = Backbone.Model.extend({
         this.pageModel = a.pageModel
     },
     connectInstagram: function(a, b, c) {
-        ExternalSourceAccessManager.getUserInfo(1, $.proxy(function(b) {
-            Server.isLogin || (Server.instagramConnected = !0, Server.isLogin = !0),
-            b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/mapper/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
-            a && $.proxy(a, c)()
-        },
-        this), $.proxy(function() {
+        ExternalSourceAccessManager.targetType = 'instagram';
+        
+        ExternalSourceAccessManager.authenticateUser(2, ExternalSourceAccessManager.getUserInfo, $.proxy(function() {
             b && $.proxy(b, c)()
         },
         this), !1, null, Server.isLogin && !Server.instagramConnected)
@@ -2048,9 +2041,8 @@ ControlFacebookPanel = Backbone.Marionette.ItemView.extend({
         }))
     },
     connectFacebook: function() {
-        _gaq && _gaq.push(["_trackPageview", "/ga_builder_click_connect_fb"]),
-        this.$(".facebook-btn-text").text(__("Loading...")),
-        this.model.connectFacebook(this.connectSucces, this.connectFail, this)
+        this.$(".facebook-btn-text").text(__("Loading..."));
+        this.model.connectFacebook(this.connectSucces, this.connectFail, this);
     },
     connectSucces: function() {
         _gaq && _gaq.push(["_trackPageview", "/ga_builder_click_connect_fb_success"]),
@@ -4475,7 +4467,7 @@ if ($needHelp.click(function() {
         }
     }
 }
-Server.action && "birthday-gift" == Server.action && (facebookPanelModel.albumModel.reset(), facebookPanelModel.fetchUserAlbum(Server.extUserId), facebookPanelModel.set("friendAlbum", !0), facebookPanelModel.set("selectedFriend", !0), facebookPanelModel.set("friendProfilePicture", Server.extProfilePic), facebookAlbumList.render(), controlPanel.gotoSlide("facebook-album-list"));
+
 var preloadFont = function(a) {
     var b = document.createElement("span");
     b.innerHTML = " ",
