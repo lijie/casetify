@@ -90,7 +90,13 @@ func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
 	// save token
 	info.FacebookToken = token
 	fmt.Printf("Get facebook token %v for user %s\n", token, info.Rid)
-	info.FacebookApi.GetAlbums()
+
+	t, err := template.New("auth_success.htm").Delims("{{{", "}}}").ParseFiles("../htdocs/auth_success.htm")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	t.Execute(w, nil)
 }
 
 // HandleInstagramRedirect 处理instagram的授权应答
