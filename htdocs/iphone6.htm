@@ -2861,6 +2861,10 @@ var _gaq=[["_setAccount","UA-25360395-1"],["_trackPageview"]];
             Server.instagramProfilePic = '';
             Server.facebookProfilePic = '';
             Server.isMobile = JSON.parse('false');
+            Server.isFacebookLogin = JSON.parse('{{{.IsFacebookLogin}}}');
+            Server.isInstagramLogin = JSON.parse('{{{.IsInstagramLogin}}}');
+            Server.isLogin = JSON.parse('{{{.IsLogin}}}');
+            Server.email = '{{{.Email}}}';
             if (_gaq) {
                _gaq.push(['_trackPageview', "/ga_web_builder"]);
             }
