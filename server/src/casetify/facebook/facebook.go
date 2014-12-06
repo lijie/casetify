@@ -22,7 +22,7 @@ func NewFacebook(conf *myoauth.Config) *Facebook {
 	fb.oconf = oauth.Config{
 		ClientId:     fb.conf.ClientID,
 		ClientSecret: fb.conf.ClientSecret,
-		Scope:        "basic,user_photos,public_profile",
+		Scope:        "user_photos,public_profile",
 		AuthURL:      "https://www.facebook.com/dialog/oauth",
 		TokenURL:     "https://graph.facebook.com/oauth/access_token",
 		RedirectURL:  fb.conf.RedirectURL,
@@ -100,12 +100,9 @@ func (fb *Facebook) Do(url string, data interface{}) error {
 
 func (fb *Facebook) GetAccessToken(w http.ResponseWriter, req *http.Request) (*oauth.Token, error) {
 	fmt.Printf("exchange code %s\n", req.FormValue("code"))
-
+	fmt.Println(fb.oconf)
 	t := &oauth.Transport{Config: &fb.oconf}
 	token, err := t.Exchange(req.FormValue("code"))
-	fmt.Println(token)
-	fmt.Println(err)
-
 	if err != nil {
 		fmt.Printf("get token err %v\n", err)
 		return nil, err

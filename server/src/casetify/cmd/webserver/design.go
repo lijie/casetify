@@ -49,6 +49,7 @@ type designDataSet struct {
 	IsLogin bool
 	IsFacebookLogin bool
 	IsInstagramLogin bool
+	Email string
 }
 
 func fillDataWithUserInfo(data *designDataSet, info *UserInfo) {
@@ -60,6 +61,7 @@ func fillDataWithUserInfo(data *designDataSet, info *UserInfo) {
 		data.IsFacebookLogin = true
 	}
 	data.IsLogin = false
+	data.Email = info.Email
 }
 
 func readJson(path string) []byte {

@@ -80,7 +80,7 @@ func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	token, err := info.InstagramApi.GetAccessToken(w, req)
+	token, err := info.FacebookApi.GetAccessToken(w, req)
 	if err != nil {
 		fmt.Printf("GetAccessToken err %v\n", err)
 		return
@@ -88,7 +88,8 @@ func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
 
 	// save token
 	info.FacebookToken = token
-	fmt.Printf("Get instagram token %v for user %s\n", token, info.Rid)
+	fmt.Printf("Get facebook token %v for user %s\n", token, info.Rid)
+	info.FacebookApi.GetAlbums()
 }
 
 // HandleInstagramRedirect 处理instagram的授权应答
@@ -143,9 +144,6 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleOrder(w http.ResponseWriter, req *http.Request) {
-}
-
-func HandlePreview(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleUser(w http.ResponseWriter, req *http.Request) {
@@ -207,7 +205,8 @@ func initWebService() {
 		http.HandleFunc("/getuploadlist", HandleGetUploadList)
 		http.HandleFunc("/controllers/mapper", HandleMapper)
 		http.HandleFunc("/user", HandleUser)
-		http.HandleFunc("/uploadpreview", HandlePreview)
+		http.HandleFunc("/save_image", HandlePreview)
+		http.HandleFunc("/save_data", HandlePreviewData)
 		http.HandleFunc("/auth", HandleAuth)
 	} else {
 		// run for SimpleHttpd

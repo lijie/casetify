@@ -7,13 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "html/template"
-	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
-	_ "strings"
 	"time"
+	"encoding/base64"
+	"io"
 )
 
 func saveFile(part *multipart.Part) {
@@ -215,4 +215,53 @@ func HandleMapper(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	io.Copy(w, f)
 	return
+}
+
+func newImgName(email string) string {
+	sha := sha1.New()
+	io.WriteString(sha, email)
+	io.WriteString(sha, time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
+	return hex.EncodeToString(sha.Sum(nil))
+}
+
+func HandlePreview(w http.ResponseWriter, req *http.Request) {
+	fmt.Println(req)
+	defer req.Body.Close()
+
+	user, err := RestoreUserInfoFromCookie(w, req)
+	if err != nil {
+		fmt.Printf("read user info err %v\n", err)
+		return
+	}
+
+	// TODO: need email!!
+	if user.Email == "" {
+		user.Email = "test@test.com"
+		fmt.Printf("user email err\n")
+//		return
+	}
+
+	header := []byte("data:image/png;base64,")
+	b := make([]byte, len(header))
+	// ignore header
+	req.Body.Read(b)
+
+	decoder := base64.NewDecoder(base64.StdEncoding, req.Body)
+	if decoder == nil {
+		fmt.Printf("base64 decoder err\n")
+		return
+	}
+	name := newImgName(user.Email)
+	f, err := os.OpenFile("../htdocs/data/preview/" + name + ".png", os.O_RDWR | os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Printf("save file %s err %v\n", name, err)
+		return
+	}
+	defer f.Close()
+	io.Copy(f, decoder)
+}
+
+func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
+	fmt.Println(req)
+	io.WriteString(w, "aaaaaaaa")
 }

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 	"io"
-	"log"
 	_ "github.com/gorilla/sessions"
 	"casetify/instagram"
 	"casetify/facebook"
@@ -115,7 +114,7 @@ func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 
 	rid, ok := session.Values["rid"]
 	if ok && len(rid.(string)) > 8 {
-		log.Printf("Get rid from cookie: %s\n", rid.(string))
+		// log.Printf("Get rid from cookie: %s\n", rid.(string))
 		return rid.(string), nil
 	}
 
@@ -163,6 +162,6 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 		return nil, err
 	}
 
-	fmt.Printf("userinfo %v\n", info)
+//	fmt.Printf("userinfo %v\n", info)
 	return info, nil
 }
