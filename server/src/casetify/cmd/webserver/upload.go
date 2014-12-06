@@ -224,6 +224,11 @@ func newImgName(email string) string {
 	return hex.EncodeToString(sha.Sum(nil))
 }
 
+func LocalPath2URL(path string) string {
+	prefix := "../htdocs"
+	return "http://127.0.0.1:8082" + path[len(prefix):]
+}
+
 func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	defer req.Body.Close()
@@ -246,26 +251,34 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 		fmt.Printf("base64 decoder err\n")
 		return
 	}
+	israw_str := ""
 	if israw == "Y" {
-		ci := FindCaseInfo(id)
-		if ci == nil {
-			return
-		}
-		out, err := json.Marshal(ci)
-		if err != nil {
-			fmt.Printf("marshal caseinfo err %v\n", err)
-			return
-		}
-		w.Write(out)
-		id = id + "_raw"
+		israw_str = "_raw"
 	}
-	f, err := os.OpenFile("../htdocs/data/preview/" + id + ".png", os.O_RDWR | os.O_CREATE, 0666)
+	path := "../htdocs/data/preview/" + id + israw_str + ".png"
+	f, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Printf("save file %s err %v\n", id, err)
 		return
 	}
 	defer f.Close()
 	io.Copy(f, decoder)
+
+	if israw == "Y" {
+		ci := FindCaseInfo(id)
+		if ci == nil {
+			return
+		}
+		ci.PreviewURL["S"] = LocalPath2URL(path)
+		ci.PreviewURL["M"] = LocalPath2URL(path)
+		ci.PreviewURL["L"] = LocalPath2URL(path)
+		out, err := json.Marshal(ci)
+		if err != nil {
+			fmt.Printf("marshal caseinfo err %v\n", err)
+			return
+		}
+		w.Write(out)
+	}
 }
 
 func HandlePreviewData(w http.ResponseWriter, req *http.Request) {

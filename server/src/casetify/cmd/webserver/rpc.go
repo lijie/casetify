@@ -201,16 +201,17 @@ func FindCaseInfo(caseid string) *CaseInfo {
 	return nil
 }
 
-func NewCaseInfo(userid string, phoneid string) *CaseInfo {
+func NewCaseInfo(userid string, itemopt string) *CaseInfo {
 	c := &CaseInfo{
 		CaseID: GenerateCaseID(userid),
 		UserID: userid,
 		CreateTime: time.Now(),
 		// TODO
-		ItemOption: "261",
+		ItemOption: itemopt,
 		UnitPrice: "39.5",
 		// TODO
 		ItemName: "itemname",
+		PreviewURL: make(map[string]string),
 	}
 	casemap[c.CaseID] = c
 	return c
