@@ -4,7 +4,7 @@ $(function() {
         var a = $("#reset-mail").val();
         return "" != a && validateEmail(a) ? ($.ajax({
             type: "post",
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/User.php",
+            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "user",
             data: {
                 fn: "resetPassword",
                 ajax: "Y",

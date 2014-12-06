@@ -16,7 +16,7 @@ $(function() {
         c = $("#sign-up-mail").val(),
         d = $("#sign-up-password").val();
         return "" != b && isValidUsername(b) ? "" != c && validateEmail(c) ? "" == d ? (showErrorMessage(__("Invalid password")), !1) : (_gaq && _gaq.push(["_trackPageview", "/ga_signup"]), $.ajax({
-            url: (ie && 10 > ie ? ConstantsManager.CASETAGRAM_INDEX_URL_WITHOUT_LOGIN: ConstantsManager.SECURED_CASETAGRAM_INDEX_URL_WITHOUT_LOGIN) + "controllers/User.php",
+            url: "/user",
             type: "POST",
             dataType: "json",
             data: {

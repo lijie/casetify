@@ -335,7 +335,7 @@ var BuilderPageState = Backbone.Model.extend({
                 void(_gaq && _gaq.push(["_trackPageview", "/ga_builder_warning_image_duplicated"]))
             }
         }
-        /*var y = UserProfileManager.getUserInfo();
+        var y = UserProfileManager.getUserInfo();
         if (this.set("userInfo", y), y == ConstantsManager.USER_INFO_UNABLE_TO_GET_USER_PROFILE_ERROR && (y = null), !y) {
             var z = new SignupModalView({
                 app: this.app,
@@ -360,7 +360,7 @@ var BuilderPageState = Backbone.Model.extend({
             return void this.app.editDesignModalView.show(A)
         }
         if (!d) return void $.ajax({
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/User.php",
+            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "user",
             method: "GET",
             data: {
                 fn: "getNextDefaultArtworkName"
@@ -369,7 +369,7 @@ var BuilderPageState = Backbone.Model.extend({
                 u.set("currentTitle", d),
                 $.proxy(u.saveDesign, u, a, b, c)()
             }
-        });*/
+        });
         this.app.designPanel.currentView.showProgress(7),
         this.app.designPanel.currentView.model.computeOverallImageQuality();
         var u = this;
@@ -3794,7 +3794,7 @@ SignupModalView = Backbone.Marionette.ItemView.extend({
     submitEmailRegister: function() {
         var a = this;
         return "" != this.$emailField.val() && validateEmail(this.$emailField.val()) ? ($.ajax({
-            url: (ie && 10 > ie ? ConstantsManager.CASETAGRAM_INDEX_URL_WITHOUT_LOGIN: ConstantsManager.SECURED_CASETAGRAM_INDEX_URL_WITHOUT_LOGIN) + "controllers/User.php",
+            url: "/user",
             type: "POST",
             dataType: "json",
             data: {

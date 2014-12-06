@@ -617,7 +617,7 @@ InviteSignupModalView = Backbone.Marionette.ItemView.extend({
         c = this.$("#sign-up-password").val(),
         d = this;
         return isValidUsername(a) ? "" != b && validateEmail(b) ? "" == c ? (showErrorMessage(__("Invalid password")), !1) : ($.ajax({
-            url: (ie && 10 > ie ? ConstantsManager.CASETAGRAM_INDEX_URL_WITHOUT_LOGIN: ConstantsManager.SECURED_CASETAGRAM_INDEX_URL_WITHOUT_LOGIN) + "controllers/User.php",
+            url: "/user",
             type: "POST",
             dataType: "json",
             data: {
@@ -717,7 +717,7 @@ CompleteUserProfileModal = Backbone.Marionette.ItemView.extend({
         !1;
         var c = this;
         return $.ajax({
-            url: "/controllers/User.php",
+            url: "/user",
             method: "POST",
             data: {
                 fn: "confirmUserProfileDetails",
@@ -985,7 +985,7 @@ var UserProfileManager = {
         },
         b = !1;
         return $.ajax({
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/User.php",
+            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "user",
             dataType: "json",
             async: !1,
             data: a,
@@ -1023,7 +1023,7 @@ var UserProfileManager = {
         return a && (b.allowGuestUser = !0),
         rtn = null,
         $.ajax({
-            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/User.php",
+            url: ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "user",
             dataType: "json",
             async: !1,
             data: b,
