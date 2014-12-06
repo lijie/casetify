@@ -453,7 +453,7 @@ var BuilderPageState = Backbone.Model.extend({
             f.verifySendImage(a, c, d, e)
         });
         var h = navigator.userAgent;
-        g.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "controllers/ImageEx.php?id=" + a + "&is_raw=Y&ua=" + h, !0),
+        g.open("post", ConstantsManager.CASETAGRAM_DOCUMENT_ROOT_PATH + "save_image?id=" + a + "&is_raw=Y&ua=" + h, !0),
         g.setRequestHeader("Content-Type", "multipart/form-data-"),
         g.setRequestHeader("X-File-Name", a),
         g.setRequestHeader("X-File-Size", b.length),

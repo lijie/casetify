@@ -1126,7 +1126,7 @@ ExternalSourceAccessManager = {
         $(this.loginIFrame).remove()
     },
     proceedPopupAuthentication: function(a, b) {
-        this.authWindow = window.open(a + "&statusOnly=N", "casetagramAuthWindow" + b, "height=400,width=500,resizable=yes,toolbar=no,menubar=no,location=no,status=no"),
+        this.authWindow = window.open(a + "&statusOnly=N", "casetagramAuthWindow" + b, "height=500,width=600,resizable=yes,toolbar=no,menubar=no,location=no,status=no"),
         this.authWindow && !this.authWindow.closed && (this.authWindowCreated = !0),
         setTimeout(this.checkAuthWindowStatus, ExternalSourceAccessManager.AUTH_WINDOW_PROBING_INTERVAL)
     },
