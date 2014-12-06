@@ -264,20 +264,24 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	defer f.Close()
 	io.Copy(f, decoder)
 
+	ci := FindCaseInfo(id)
+	if ci == nil {
+		return
+	}
+	
 	if israw == "Y" {
-		ci := FindCaseInfo(id)
-		if ci == nil {
-			return
-		}
-		ci.PreviewURL["S"] = LocalPath2URL(path)
-		ci.PreviewURL["M"] = LocalPath2URL(path)
-		ci.PreviewURL["L"] = LocalPath2URL(path)
+		ci.localPreviewRawPath = path
+		ci.PreviewURL["S"] = LocalPath2URL(ci.localPreviewPath)
+		ci.PreviewURL["M"] = LocalPath2URL(ci.localPreviewPath)
+		ci.PreviewURL["L"] = LocalPath2URL(ci.localPreviewPath)
 		out, err := json.Marshal(ci)
 		if err != nil {
 			fmt.Printf("marshal caseinfo err %v\n", err)
 			return
 		}
 		w.Write(out)
+	} else {
+		ci.localPreviewPath = path
 	}
 }
 

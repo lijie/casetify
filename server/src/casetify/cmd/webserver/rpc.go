@@ -40,6 +40,10 @@ type CaseInfo struct {
 	DeviceShortName        string            `json:"device_short_name"`
 	DeviceShortDescription string            `json:"device_short_description"`
 	PreviewURL             map[string]string `json:"preview_url"`
+
+	// not export to json
+	localPreviewPath    string
+	localPreviewRawPath string
 }
 
 // TODO(lijie): need lock
@@ -203,14 +207,14 @@ func FindCaseInfo(caseid string) *CaseInfo {
 
 func NewCaseInfo(userid string, itemopt string) *CaseInfo {
 	c := &CaseInfo{
-		CaseID: GenerateCaseID(userid),
-		UserID: userid,
+		CaseID:     GenerateCaseID(userid),
+		UserID:     userid,
 		CreateTime: time.Now(),
 		// TODO
 		ItemOption: itemopt,
-		UnitPrice: "39.5",
+		UnitPrice:  "39.5",
 		// TODO
-		ItemName: "itemname",
+		ItemName:   "itemname",
 		PreviewURL: make(map[string]string),
 	}
 	casemap[c.CaseID] = c

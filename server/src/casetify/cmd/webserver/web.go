@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"io/ioutil"
 )
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -120,18 +121,18 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 	fmt.Printf("Get instagram token %v for user %s\n", token, info.Rid)
 
 	// TODO(lijie): output html template
-	medias, err := info.InstagramApi.RecentMedia(token, 10)
-	if err != nil {
-		fmt.Printf("ERR: RecentMedia %v\n", err)
-		return
-	}
+//	medias, err := info.InstagramApi.RecentMedia(token, 10)
+//	if err != nil {
+//		fmt.Printf("ERR: RecentMedia %v\n", err)
+//		return
+//	}
 
-	t, err := template.ParseFiles("../html/instagram_photo_list.html")
+	t, err := template.New("auth_success.htm").Delims("{{{", "}}}").ParseFiles("../htdocs/auth_success.htm")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	t.Execute(w, medias)
+	t.Execute(w, nil)
 }
 
 func HandleBuy(w http.ResponseWriter, req *http.Request) {
@@ -161,6 +162,18 @@ func HandleUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// fn == "getUserContactList"
+	if fn == "getUserInfo" {
+		b, err := ioutil.ReadFile("conf/user.json")
+		if err != nil {
+			fmt.Println("read user.json err %v\n", err)
+			return
+		}
+		w.Write(b)
+		return
+	}
+	if fn == "registerNewUser" {
+		return
+	}
 }
 
 func HandleAuth(w http.ResponseWriter, req *http.Request) {
@@ -180,6 +193,13 @@ func HandleAuth(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func HandleAuthentication(w http.ResponseWriter, req *http.Request) {
+	fn := req.FormValue("fn")
+	if fn == "checkValidAccessToken" {
+		io.WriteString(w, "1101")
+	}
+}
+
 var port = flag.Int("port", 80, "default port")
 var rootDir = flag.String("rootdir", "", "default root dir")
 
@@ -189,18 +209,20 @@ func initWebService() {
 		// http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../html"))))
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("../htdocs"))))
 
+		// test
 		http.HandleFunc("/hello", HelloServer)
-		// http.HandleFunc("/upload", HandleUpload)
-		http.HandleFunc("/design/", HandleDesign)
 		http.HandleFunc("/cookie", HandleTestCookie)
 		http.HandleFunc("/cookie2", HandleTestCookie2)
 		http.HandleFunc("/get", HandleTestGet)
-		http.HandleFunc("/instagram_redirect_uri", HandleInstagramRedirect)
-		http.HandleFunc("/facebook_redirect_uri", HandleFacebookRedirect)
 		http.HandleFunc("/login", HandleLogin)
 		http.HandleFunc("/buy", HandleBuy)
 		http.HandleFunc("/pay", HandlePay)
 		http.HandleFunc("/order", HandleOrder)
+
+		// for casetify
+		http.HandleFunc("/design/", HandleDesign)
+		http.HandleFunc("/facebook_redirect_uri", HandleFacebookRedirect)
+		http.HandleFunc("/instagram_redirect_uri", HandleInstagramRedirect)
 		http.HandleFunc("/upload", HandleUpload2)
 		http.HandleFunc("/getuploadlist", HandleGetUploadList)
 		http.HandleFunc("/controllers/mapper", HandleMapper)
@@ -208,6 +230,7 @@ func initWebService() {
 		http.HandleFunc("/save_image", HandlePreview)
 		http.HandleFunc("/save_data", HandlePreviewData)
 		http.HandleFunc("/auth", HandleAuth)
+		http.HandleFunc("/authentication", HandleAuthentication)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
