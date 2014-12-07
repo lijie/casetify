@@ -176,12 +176,12 @@ func HandleUser(w http.ResponseWriter, req *http.Request) {
 	}
 	// fn == "getUserContactList"
 	if fn == "getUserInfo" {
-		_, err := ioutil.ReadFile("conf/user.json")
+		b, err := ioutil.ReadFile("conf/user.json")
 		if err != nil {
 			fmt.Println("read user.json err %v\n", err)
 			return
 		}
-		//w.Write(b)
+		w.Write(b)
 		return
 	}
 	if fn == "registerNewUser" {
