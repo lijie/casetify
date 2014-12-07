@@ -3,17 +3,17 @@ package main
 import (
 	_ "crypto/md5"
 	"crypto/sha1"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	_ "html/template"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
-	"encoding/base64"
-	"io"
 )
 
 func saveFile(part *multipart.Part) {
@@ -105,7 +105,7 @@ func responseUploadErr() {
 }
 
 type FileUploadInfo struct {
-	Id       int64  `json:"id", string`
+	Id       string `json:"id"`
 	Uri      string `json:"uri"`
 	FileSize int64  `json:"file_size", string`
 }
@@ -146,22 +146,41 @@ func generateFileName(name string) string {
 // "FILE_UPLOAD_USER_PHOTO_LIMIT_TEXT": "10MB",
 // "FILE_UPLOAD_USER_PHOTO_BATCH_SIZE_LIMIT": 20,
 
-func HandleUpload2(w http.ResponseWriter, req *http.Request) {
+func HandleDeleteUploadFile(w http.ResponseWriter, req *http.Request) {
+	id := req.FormValue("uploadedFileId")
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
 		fmt.Printf("restore userinfo err %v\n", err)
 		return
 	}
-	
+	for i := 0; i < len(user.UploadList); i++ {
+		if user.UploadList[i].Id == id {
+			user.UploadList = append(user.UploadList[:i], user.UploadList[i+1:]...)
+			return
+		}
+	}
+}
+
+func HandleUpload2(w http.ResponseWriter, req *http.Request) {
+	fn := req.FormValue("fn")
+	if fn == "deleteFile" {
+		HandleDeleteUploadFile(w, req)
+		return
+	}
+
+	user, err := RestoreUserInfoFromCookie(w, req)
+	if err != nil {
+		fmt.Printf("restore userinfo err %v\n", err)
+		return
+	}
+
 	f, header, err := req.FormFile("fileUploader")
 	if err != nil {
-
 		fmt.Println(err)
 		return
 	}
 	defer f.Close()
 
-	now := time.Now().UnixNano()
 	outname := generateFileName(header.Filename)
 	fmt.Printf("src name %s out name %s\n", header.Filename, outname)
 
@@ -179,14 +198,13 @@ func HandleUpload2(w http.ResponseWriter, req *http.Request) {
 	}
 
 	info := &FileUploadInfo{
-		Id:       now,
+		Id:       outname,
 		Uri:      "/data/upload/" + outname + ".png",
 		FileSize: n,
 	}
 
 	// save upload info
 	user.UploadList = append(user.UploadList, info)
-
 	io.WriteString(w, "1201")
 }
 
@@ -235,11 +253,11 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 
 	israw := req.FormValue("is_raw")
 	id := req.FormValue("id")
-//	user, err := RestoreUserInfoFromCookie(w, req)
-//	if err != nil {
-//		fmt.Printf("read user info err %v\n", err)
-//		return
-//	}
+	//	user, err := RestoreUserInfoFromCookie(w, req)
+	//	if err != nil {
+	//		fmt.Printf("read user info err %v\n", err)
+	//		return
+	//	}
 
 	header := []byte("data:image/png;base64,")
 	b := make([]byte, len(header))
@@ -256,7 +274,7 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 		israw_str = "_raw"
 	}
 	path := "../htdocs/data/preview/" + id + israw_str + ".png"
-	f, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Printf("save file %s err %v\n", id, err)
 		return
@@ -268,7 +286,7 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	if ci == nil {
 		return
 	}
-	
+
 	if israw == "Y" {
 		ci.localPreviewRawPath = path
 		ci.PreviewURL["S"] = LocalPath2URL(ci.localPreviewPath)
@@ -292,12 +310,12 @@ func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
 		fmt.Printf("read user info err %v\n", err)
 		return
 	}
-	
+
 	// TODO: need email!!
 	if user.Email == "" {
 		user.Email = "test@test.com"
 		fmt.Printf("user email err\n")
-//		return
+		//		return
 	}
 
 	c := NewCaseInfo(user.Email, "261")
