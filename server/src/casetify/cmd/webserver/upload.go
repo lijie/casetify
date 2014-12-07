@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"time"
+	"strconv"
 )
 
 func saveFile(part *multipart.Part) {
@@ -156,9 +157,10 @@ func HandleDeleteUploadFile(w http.ResponseWriter, req *http.Request) {
 	for i := 0; i < len(user.UploadList); i++ {
 		if user.UploadList[i].Id == id {
 			user.UploadList = append(user.UploadList[:i], user.UploadList[i+1:]...)
-			return
+			break
 		}
 	}
+	io.WriteString(w, "1214")
 }
 
 func HandleUpload2(w http.ResponseWriter, req *http.Request) {
@@ -209,14 +211,26 @@ func HandleUpload2(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleGetUploadList(w http.ResponseWriter, req *http.Request) {
+	fn := req.FormValue("fn")
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
 		fmt.Printf("restore userinfo err %v\n", err)
 		return
 	}
 
-	b, _ := json.Marshal(user.UploadList)
-	w.Write(b)
+	if fn == "getUploadFile" {
+		start, _ := strconv.Atoi(req.FormValue("startPage"))
+		start = start - 1
+		pagesize, _ := strconv.Atoi(req.FormValue("pageSize"))
+		// no more data
+		if len(user.UploadList) <= start * pagesize {
+			io.WriteString(w, "1222")
+			return
+		}
+		offset := len(user.UploadList) % pagesize
+		b, _ := json.Marshal(user.UploadList[start*pagesize:offset])
+		w.Write(b)
+	}
 }
 
 func HandleMapper(w http.ResponseWriter, req *http.Request) {
