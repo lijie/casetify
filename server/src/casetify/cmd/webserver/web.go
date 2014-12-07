@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 	"io/ioutil"
+	"encoding/json"
 )
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -24,6 +25,12 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 var CookieStore = sessions.NewCookieStore([]byte("something-very-secert"))
 
 var CaseDB *db.DB
+
+type ServerConf struct {
+	Domain string `json:"domain"`
+	Database string `json:"database"`
+}
+var serverconf ServerConf
 
 func init() {
 }
@@ -169,16 +176,29 @@ func HandleUser(w http.ResponseWriter, req *http.Request) {
 	}
 	// fn == "getUserContactList"
 	if fn == "getUserInfo" {
-		b, err := ioutil.ReadFile("conf/user.json")
+		_, err := ioutil.ReadFile("conf/user.json")
 		if err != nil {
 			fmt.Println("read user.json err %v\n", err)
 			return
 		}
-		w.Write(b)
+		//w.Write(b)
 		return
 	}
 	if fn == "registerNewUser" {
-		return
+		email := req.FormValue("register-email")
+		if len(email) == 0 {
+			return
+		}
+		if err := CaseDB.RegisterUser(email); err != nil && err != db.ErrUserAlreadyRegisted {
+			fmt.Printf("register user %s err %v\n", email, err)
+			return
+		}
+		user, err := RestoreUserInfoFromCookie(w, req);
+		if err != nil {
+			return
+		}
+		user.Email = email
+		io.WriteString(w, "1120")
 	}
 }
 
@@ -244,11 +264,21 @@ func initWebService() {
 }
 
 func initLogicServer() {
-	//var err error
-	//CaseDB, err = db.NewDB("127.0.0.1:27017")
-	//if err != nil {
-	//	log.Fatal("Connect DB failed %v\n", err)
-	//}
+	b, err := ioutil.ReadFile("conf/server.json")
+	if err != nil {
+		fmt.Printf("read server.json err %v\n", err)
+		return
+	}
+	if err := json.Unmarshal(b, &serverconf); err != nil {
+		fmt.Printf("unmarshal server json err %v\n", err)
+		return
+	}
+	
+	CaseDB, err = db.NewDB(serverconf.Database)
+	if err != nil {
+		log.Fatal("Connect DB failed %v\n", err)
+	}
+	fmt.Printf("Connect database %s ok\n", serverconf.Database)
 }
 
 func main() {

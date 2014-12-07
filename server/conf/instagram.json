@@ -1,5 +1,5 @@
 {
     "client_id": "46c08890f7ef4731b2b802d972c3d000",
-    "client_secret": "",
+    "client_secret": "efd1320106d64d2e9ed581ae4196b62b",
     "redirect_url": "http://127.0.0.1:8082/instagram_redirect_uri"
 }

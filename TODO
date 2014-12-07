@@ -1,13 +1,16 @@
 BUGS:
 (done) * getuploadlit返回成功 但是前端未成功获取图片
-* 上传完成后, 立即发起第二次upload, 前端没有反应
+(done) * 上传完成后, 立即发起第二次upload, 前端没有反应
 * getuploadlist似乎调用频率特别高
 * 用户叉掉一个上传图片, 应该通知后台
-* layout下面, 有时候有2个layout, 有时候只有1个
-* 只有1个的情况下面, 页面会在一段时间后自动"刷新"下回的最初状态
+(done) * layout下面, 有时候有2个layout, 有时候只有1个
+(done) * 只有1个的情况下面, 页面会在一段时间后自动"刷新"下回的最初状态
+* 去掉连接facebook的js
+* user?fn=getUserInfo会导致死循环
+删除上传文件后, 就再也不能发起上传操作
 
 FEATURES:
-* 上传用户设计好的预览图
+(done) * 上传用户设计好的预览图
 * 用户可以写字
 * 拉取instagram图片
 * 拉取facebook图片

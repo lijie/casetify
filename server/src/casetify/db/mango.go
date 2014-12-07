@@ -39,6 +39,7 @@ const (
 )
 
 var ErrNotExist = errors.New("content not exist")
+var ErrUserAlreadyRegisted = errors.New("user already registerd")
 
 type CaseImg struct {
 	ImageURL string  `bson: "imsageurl"`
@@ -172,6 +173,21 @@ func (db *DB) SetOrder(order *Order) error {
 func (db *DB) SetUser(user *User) error {
 	_, err := db.usertb.Upsert(bson.M{"email": user.Email}, user)
 	return err
+}
+
+func (db *DB) RegisterUser(email string) error {
+	u, err := db.GetUser(email)
+	if u != nil {
+		return ErrUserAlreadyRegisted
+	}
+	u = &User{
+		Email: email,
+		RegTime: time.Now(),
+	}
+	if err = db.SetUser(u); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db *DB) SetCase(cs *Case) error {

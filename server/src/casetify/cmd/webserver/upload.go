@@ -315,6 +315,9 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	} else {
 		ci.localPreviewPath = path
 	}
+
+	// TODO:
+	// save caseinfo to db
 }
 
 func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
