@@ -962,10 +962,21 @@ FacebookPanelModel = Backbone.Model.extend({
     },
     connectFacebook: function(a, b, c) {
         ExternalSourceAccessManager.targetType = 'facebook';
-        ExternalSourceAccessManager.authenticateUser(2, ExternalSourceAccessManager.getUserInfo, $.proxy(function(a) {
-            b && $.proxy(b, c)(a)
-        },
-        this), !1, null, Server.isLogin && !Server.facebookConnected)
+
+        ExternalSourceAccessManager.getUserInfo(2, $.proxy(function(b) {
+                Server.isLogin || (Server.facebookConnected = !0, Server.isLogin = !0),
+                b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/Mapper.php/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
+                a && $.proxy(a, c)()
+            },
+            this), $.proxy(function(a) {
+                b && $.proxy(b, c)(a)
+            },
+            this), !1, null, Server.isLogin && !Server.facebookConnected)
+        //
+        //ExternalSourceAccessManager.authenticateUser(2, ExternalSourceAccessManager.getUserInfo, $.proxy(function(a) {
+        //    b && $.proxy(b, c)(a)
+        //},
+        //this), !1, null, Server.isLogin && !Server.facebookConnected)
     },
     fetchUserFriends: function() {
         var a = this;
@@ -1426,11 +1437,16 @@ InstagramPanelModel = Backbone.Model.extend({
     },
     connectInstagram: function(a, b, c) {
         ExternalSourceAccessManager.targetType = 'instagram';
-        
-        ExternalSourceAccessManager.authenticateUser(2, ExternalSourceAccessManager.getUserInfo, $.proxy(function() {
-            b && $.proxy(b, c)()
-        },
-        this), !1, null, Server.isLogin && !Server.instagramConnected)
+
+        ExternalSourceAccessManager.getUserInfo(1, $.proxy(function(b) {
+                Server.isLogin || (Server.instagramConnected = !0, Server.isLogin = !0),
+                b && b.profile_picture && (b.profile_picture.match(/^\/controllers\/Mapper.php/) || (b.profile_picture = getThumbnailUrl(b.profile_picture)), this.set("profilePicture", b.profile_picture)),
+                a && $.proxy(a, c)()
+            },
+            this), $.proxy(function() {
+                b && $.proxy(b, c)()
+            },
+            this), !1, null, Server.isLogin && !Server.instagramConnected)
     },
     fetchUserFriends: function() {
         var a = this;
@@ -2862,8 +2878,8 @@ ControlPanel = Backbone.Marionette.ItemView.extend({
         if ("facebook-album-list" == a) {
             if (this.loadingMap[a]) return;
             this.loadingMap[a] = !0,
-            ctgBuilder.facebookAlbumList.show(facebookAlbumList),
-            facebookPanelModel.fetchUserAlbum()
+                ctgBuilder.facebookAlbumList.show(facebookAlbumList),
+                facebookPanelModel.fetchUserAlbum()
         }
     },
     setDefaultPath: function(a, b, c) {

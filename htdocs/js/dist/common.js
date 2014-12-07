@@ -1051,7 +1051,7 @@ ExternalSourceAccessManager = {
     isRetrieveExternalDataOnly: !1,
     validAccessTokenCache: {},
     getUserInfo: function(a, b, c, d, e, f) {
-        a ? this.setCallbackStateForAuthWindow(b, c) : (a = this.currentExternalSourceId, f = this.isRetrieveExternalDataOnly),
+        a ? this.setCallbackStateForAuthWindow(b, c) : (a = this.currentExternalSourceId, f = this.isRetrieveExternalDataOnly);
         this.checkValidAccessToken(a, f,
         function(g) {
             g || this.userAuthenticatedForThisAction ? this.fetchUserInfoFromServer(a, b, c) : (this.currentExternalSourceId = a, this.isRetrieveExternalDataOnly = f, this.authenticateUser(a, this.getUserInfo, c, d, e, f))
@@ -1151,6 +1151,7 @@ ExternalSourceAccessManager = {
         this.callbackActionFail = b
     },
     executeCallbackReturnAction: function(a) {
+        1;
         this.userAuthenticatedForThisAction = !1,
         a ? this.callbackActionSuccess(a) : this.callbackActionFail()
     },
