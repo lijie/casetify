@@ -2256,52 +2256,7 @@ var _gaq=[["_setAccount","UA-25360395-1"],["_trackPageview"]];
         }
     }]
 }];
-            Server.deviceProductMapping = {
-    "iphone6": {
-        "1": {
-            "id": "1",
-            "description": "Classic Snap",
-            "short_description": "Classic Snap",
-            "short_name": "case",
-            "allow_design": "Y",
-            "allow_sdk": "Y",
-            "status": "A",
-            "sort_seq": "1"
-        }
-    },
-    "iphone5": {
-        "1": {
-            "id": "1",
-            "description": "Classic Snap",
-            "short_description": "Classic Snap",
-            "short_name": "case",
-            "allow_design": "Y",
-            "allow_sdk": "Y",
-            "status": "A",
-            "sort_seq": "1"
-        },
-        "4": {
-            "id": "4",
-            "description": "Bezel Bold",
-            "short_description": "Bezel Bold",
-            "short_name": "bezel-case",
-            "allow_design": "Y",
-            "allow_sdk": "N",
-            "status": "A",
-            "sort_seq": "4"
-        },
-        "5": {
-            "id": "5",
-            "description": "Hard Backplate",
-            "short_description": "Backplate",
-            "short_name": "bezel-case-backplate",
-            "allow_design": "Y",
-            "allow_sdk": "N",
-            "status": "A",
-            "sort_seq": "5"
-        }
-    }
-};
+            Server.deviceProductMapping = {{{.ServerDeviceMap}}};
             Server.enterChallenge = JSON.parse('false');
             Server.subscriptionPlans = [];
             [{

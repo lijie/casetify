@@ -44,6 +44,7 @@ type DataSet struct {
 type designDataSet struct {
 	ServerDevices string
 	ServerItemOption string
+	ServerDeviceMap string
 	DefaultDevice string
 	DeviceName string
 	IsLogin bool
@@ -94,12 +95,22 @@ func unmarshalDevices(phone_type string) []map[string]string {
 		return nil
 	}
 
-//	for i := 0; i < len(v); i++ {
-//		if v[i]["short_name"] == phone_type {
-//			v[i]["is_default_for_collection"] = "Y"
-//		}
-//	}
-	
+	return v
+}
+
+func unmarshalDeviceMap() map[string]map[string]map[string]string {
+	b := readJson("conf/devicemap.json")
+	if b == nil {
+		return nil
+	}
+
+	var v map[string]map[string]map[string]string
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		log.Printf("Unmarshal device map err %v\n", err)
+		return nil
+	}
+
 	return v
 }
 
@@ -142,6 +153,9 @@ func HandleDesign(w http.ResponseWriter, req *http.Request) {
 
 	b, _ = json.Marshal(unmarshalItemOption())
 	data.ServerItemOption = string(b)
+
+	b, _ = json.Marshal(unmarshalDeviceMap())
+	data.ServerDeviceMap = string(b)
 
 	data.DefaultDevice = phone_type
 	data.DeviceName = phone_type

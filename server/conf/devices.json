@@ -46,6 +46,27 @@
      "default_item_option": "121",
      "is_featured": "N"
  },
- {"device_id":"15","description":"iPhone 5s","short_description":"iPhone 5s","short_name":"iphone5s","status":"A","show_product_shot":"Y","is_default_for_collection":"N","sort_seq":"2","default_item_option":"151","is_featured":"Y"},
- {"device_id":"6","description":"iPhone 5","short_description":"iPhone 5","short_name":"iphone5","status":"A","show_product_shot":"Y","is_default_for_collection":"N","sort_seq":"6","default_item_option":"61","is_featured":"Y"}
-]
+ {
+     "device_id":"15",
+     "description":"iPhone 5s",
+     "short_description":"iPhone 5s",
+     "short_name":"iphone5s",
+     "status":"A",
+     "show_product_shot":"Y",
+     "is_default_for_collection":"N",
+     "sort_seq":"2",
+     "default_item_option":"151",
+     "is_featured":"Y"
+ },
+ {
+     "device_id":"6",
+     "description":"iPhone 5",
+     "short_description":"iPhone 5",
+     "short_name":"iphone5",
+     "status":"A",
+     "show_product_shot":"Y",
+     "is_default_for_collection":"N",
+     "sort_seq":"6",
+     "default_item_option":"61",
+     "is_featured":"Y"
+ }]
