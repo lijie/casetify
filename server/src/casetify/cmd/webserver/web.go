@@ -222,7 +222,7 @@ func HandleAuth(w http.ResponseWriter, req *http.Request) {
 func HandleAuthentication(w http.ResponseWriter, req *http.Request) {
 	fn := req.FormValue("fn")
 	if fn == "checkValidAccessToken" {
-		io.WriteString(w, "1101")
+		io.WriteString(w, "1001")
 	}
 }
 

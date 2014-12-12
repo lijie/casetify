@@ -2073,10 +2073,10 @@ ControlFacebookPanel = Backbone.Marionette.ItemView.extend({
         this.model.connectFacebook(this.connectSucces, this.connectFail, this);
     },
     connectSucces: function() {
-        _gaq && _gaq.push(["_trackPageview", "/ga_builder_click_connect_fb_success"]),
-        this.controlPanel.setDefault("facebook-btn", "facebook-album-list"),
-        this.controlPanel.gotoSlide("facebook-album-list"),
-        this.render()
+        _gaq && _gaq.push(["_trackPageview", "/ga_builder_click_connect_fb_success"]);
+        this.controlPanel.setDefault("facebook-btn", "facebook-album-list");
+        this.controlPanel.gotoSlide("facebook-album-list");
+        this.render();
     },
     connectFail: function(a) {
         console.log("connect facebook failed"),
