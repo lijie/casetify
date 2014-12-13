@@ -61,7 +61,11 @@ func fillDataWithUserInfo(data *designDataSet, info *UserInfo) {
 	if info.HasFacebookToken() {
 		data.IsFacebookLogin = true
 	}
-	data.IsLogin = false
+	if len(info.Email) == 0 {
+		data.IsLogin = false
+	} else {
+		data.IsLogin = true
+	}
 	data.Email = info.Email
 }
 

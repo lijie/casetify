@@ -37,7 +37,7 @@ func (fb *Facebook) AuthCodeURL(code string) string {
 type AlbumsData struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
-	CoverPhoto string `json:"conver_photo"`
+	CoverPhoto string `json:"cover_photo"`
 	Count      int    `json:"count"`
 }
 
@@ -76,11 +76,19 @@ type PhotosData struct {
 }
 
 func (fb *Facebook) GetAlbumPhotos(albumid string) ([]PhotosData, error) {
-	url := fmt.Sprintf("https://graph.facebook.com/v2.2/1951896994726/photos?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", fb.token.AccessToken)
+	url := fmt.Sprintf("https://graph.facebook.com/v2.2/%s/photos?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", albumid, fb.token.AccessToken)
 	photos := &Photos{}
 	fb.Do(url, photos)
 	fmt.Println(photos)
 	return photos.Data, nil
+}
+
+func (fb *Facebook) GetPhoto(photoid string) (*PhotosData, error) {
+	url := fmt.Sprintf("https://graph.facebook.com/v2.2/%s?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", photoid, fb.token.AccessToken)
+	photo := &PhotosData{}
+	fb.Do(url, photo)
+	fmt.Println(photo)
+	return photo, nil
 }
 
 func (fb *Facebook) Do(url string, data interface{}) error {
