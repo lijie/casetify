@@ -37,6 +37,7 @@ func init() {
 	userfnmap["getUserAlbumPhoto"] = fnGetUserAlbumPhoto
 	userfnmap["getUserInfo"] = fnGetUserInfo
 	userfnmap["registerNewUser"] = fnRegisterNewUser
+	userfnmap["getNextDefaultArtworkName"] = fnGetNextDefaultArtworkName
 }
 
 func HandleTestCookie2(w http.ResponseWriter, req *http.Request) {
@@ -164,6 +165,10 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 func HandleOrder(w http.ResponseWriter, req *http.Request) {
 }
 
+func fnGetNextDefaultArtworkName(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	io.WriteString(w, "Design #1")
+}
+
 func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	if !user.HasFacebookToken() {
 		log.Printf("no facebook token\n")
@@ -179,9 +184,26 @@ func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInf
 		io.WriteString(w, "1114")
 		return
 	}
+	pa := make([]ProtoAlbum, len(album))
 	for i := range album {
-		p, _ := user.FacebookApi.GetPhoto(album[i].CoverPhoto)
-		log.Printf("album cover:\n%v\n", p)
+		p, _ := user.FacebookApi.GetAlbumCoverURL(album[i].ID)
+		if len(p) == 0 {
+			continue
+		}
+		pa[i].ID = album[i].ID
+		pa[i].Name = album[i].Name
+		pa[i].CoverPhoto.ID = album[i].CoverPhoto
+		pa[i].CoverPhoto.Images = make(map[string]string)
+		pa[i].CoverPhoto.Images["low_resolution"] = p
+		pa[i].CoverPhoto.Images["thumbnail"] = p
+		pa[i].CoverPhoto.Images["raw_uri"] = p
+		pa[i].CoverPhoto.Images["standard_resolution"] = p
+		pa[i].CoverPhoto.Images["squared_thumbanil"] = p
+	}
+	log.Printf("proto images:\n%v\n", pa)
+	b, err := json.Marshal(pa)
+	if err == nil {
+		w.Write(b)
 	}
 	return
 }

@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"errors"
 )
+
+var ErrorNotFound = errors.New("resource not found")
 
 type Facebook struct {
 	token *oauth.Token
@@ -41,6 +44,10 @@ type AlbumsData struct {
 	Count      int    `json:"count"`
 }
 
+type AlbumPicture struct {
+	Data map[string]string `json:"data"`
+}
+
 type Albums struct {
 	Data []AlbumsData `json:"data"`
 }
@@ -64,7 +71,7 @@ type PhotoImage struct {
 }
 
 type PhotosData struct {
-	ID      int          `json:"id"`
+	ID      string       `json:"id"`
 	Icon    string       `json:"icon"`
 	Images  []PhotoImage `json:"images"`
 	Link    string       `json:"link"`
@@ -89,6 +96,20 @@ func (fb *Facebook) GetPhoto(photoid string) (*PhotosData, error) {
 	fb.Do(url, photo)
 	fmt.Println(photo)
 	return photo, nil
+}
+
+func (fb *Facebook) GetAlbumCoverURL(albumid string) (string, error) {
+	url := fmt.Sprintf("https://graph.facebook.com/v2.2/%s/picture?redirect=false&access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", albumid, fb.token.AccessToken)
+	pic := &AlbumPicture{
+		Data: make(map[string]string),
+	}
+	fb.Do(url, pic)
+	fmt.Println(pic)
+	if url, ok := pic.Data["url"]; ok {
+		return url, nil
+	}
+	return "", ErrorNotFound
+	
 }
 
 func (fb *Facebook) Do(url string, data interface{}) error {
