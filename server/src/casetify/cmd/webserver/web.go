@@ -200,6 +200,9 @@ func HandleUser(w http.ResponseWriter, req *http.Request) {
 		user.Email = email
 		io.WriteString(w, "1120")
 	}
+	if fn == "getNextDefaultArtworkName" {
+    	io.WriteString(w, "Design #1")
+    }
 }
 
 func HandleAuth(w http.ResponseWriter, req *http.Request) {
