@@ -33,6 +33,10 @@ type ServerConf struct {
 var serverconf ServerConf
 
 func init() {
+	userfnmap = make(map[string]func(http.ResponseWriter, *http.Request, *UserInfo))
+	userfnmap["getUserAlbumPhoto"] = fnGetUserAlbumPhoto
+	userfnmap["getUserInfo"] = fnGetUserInfo
+	userfnmap["registerNewUser"] = fnRegisterNewUser
 }
 
 func HandleTestCookie2(w http.ResponseWriter, req *http.Request) {
@@ -160,46 +164,71 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 func HandleOrder(w http.ResponseWriter, req *http.Request) {
 }
 
+func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	if !user.HasFacebookToken() {
+		log.Printf("no facebook token\n")
+		return
+	}
+	album, err := user.FacebookApi.GetAlbums()
+	if err != nil {
+		log.Printf("GetAlbums err %v\n", err)
+		return
+	}
+	if album == nil || len(album) == 0 {
+		// no albums
+		io.WriteString(w, "1114")
+		return
+	}
+	for i := range album {
+		p, _ := user.FacebookApi.GetPhoto(album[i].CoverPhoto)
+		log.Printf("album cover:\n%v\n", p)
+	}
+	return
+}
+
+func fnGetUserInfo(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	// if not login
+	if len(user.Email) == 0 {
+		io.WriteString(w, "1101")
+		return
+	}
+	b, err := ioutil.ReadFile("conf/user.json")
+	if err != nil {
+		fmt.Println("read user.json err %v\n", err)
+		return
+	}
+	w.Write(b)
+	return
+}
+
+func fnRegisterNewUser(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	email := req.FormValue("register-email")
+	if len(email) == 0 {
+		return
+	}
+	if err := CaseDB.RegisterUser(email); err != nil && err != db.ErrUserAlreadyRegisted {
+		fmt.Printf("register user %s err %v\n", email, err)
+		return
+	}
+	user.Email = email
+	io.WriteString(w, "1120")
+}
+
+var userfnmap map[string]func(http.ResponseWriter, *http.Request, *UserInfo)
+
 func HandleUser(w http.ResponseWriter, req *http.Request) {
+	user, err := RestoreUserInfoFromCookie(w, req);
+	if err != nil {
+		return
+	}
 	fn := req.FormValue("fn")
-	if fn == "getUserAlbumPhoto" {
-//		HandleGetAlbum(w, req)
+	if len(fn) == 0 {
 		return
 	}
-	if fn == "getUserPhoto" {
-//		HandleGetAlbumPhoto(w, req)
-		return
+	if f, ok := userfnmap[fn]; ok {
+		f(w, req, user)
 	}
-	if fn == "getUserPhoto" {
-//		HandleGetAlbumPhoto(w, req)
-		return
-	}
-	// fn == "getUserContactList"
-	if fn == "getUserInfo" {
-		b, err := ioutil.ReadFile("conf/user.json")
-		if err != nil {
-			fmt.Println("read user.json err %v\n", err)
-			return
-		}
-		w.Write(b)
-		return
-	}
-	if fn == "registerNewUser" {
-		email := req.FormValue("register-email")
-		if len(email) == 0 {
-			return
-		}
-		if err := CaseDB.RegisterUser(email); err != nil && err != db.ErrUserAlreadyRegisted {
-			fmt.Printf("register user %s err %v\n", email, err)
-			return
-		}
-		user, err := RestoreUserInfoFromCookie(w, req);
-		if err != nil {
-			return
-		}
-		user.Email = email
-		io.WriteString(w, "1120")
-	}
+	return
 }
 
 func HandleAuth(w http.ResponseWriter, req *http.Request) {
@@ -220,9 +249,18 @@ func HandleAuth(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleAuthentication(w http.ResponseWriter, req *http.Request) {
+	user, err := RestoreUserInfoFromCookie(w, req)
+	if err != nil {
+		fmt.Printf("read user info err %v\n", err)
+		return
+	}
 	fn := req.FormValue("fn")
 	if fn == "checkValidAccessToken" {
-		io.WriteString(w, "1001")
+		if user.HasFacebookToken() {
+			io.WriteString(w, "1001")
+		} else {
+			io.WriteString(w, "1000")
+		}
 	}
 }
 

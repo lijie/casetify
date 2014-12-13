@@ -10,7 +10,7 @@ import (
 
 const (
 	// 无效订单
-	OrderInvaid = 0
+	OrderInvalid = 0
 	// 等待付款
 	OrderWaitPay = 1
 	// 已经付款
@@ -66,12 +66,12 @@ type Case struct {
 }
 
 type Order struct {
-	OrderID     uint64   `bson: "_id"`
-	UID         string   `bson: "uid"`
-	Time        uint64   `bson: "time"`
-	Status      int      `bson: "status"`
-	CloseReason int      `bson: "closereason"`
-	CaseList    []string `bson: "caselist"`
+	OrderID     uint64    `bson: "_id"`
+	UID         string    `bson: "uid"`
+	Time        time.Time `bson: "time"`
+	Status      int       `bson: "status"`
+	CloseReason int       `bson: "closereason"`
+	CaseList    []string  `bson: "caselist"`
 }
 
 type User struct {
@@ -170,6 +170,21 @@ func (db *DB) SetOrder(order *Order) error {
 	return err
 }
 
+func (db *DB) generateOrderID() uint64 {
+	return 0
+}
+
+func (db *DB) NewOrder(uid string) *Order {
+	o := &Order{
+		OrderID:     db.generateOrderID(),
+		UID:         uid,
+		Time:        time.Now(),
+		Status:      OrderInvalid,
+		CloseReason: ReasonNotClose,
+	}
+	return o
+}
+
 func (db *DB) SetUser(user *User) error {
 	_, err := db.usertb.Upsert(bson.M{"email": user.Email}, user)
 	return err
@@ -181,7 +196,7 @@ func (db *DB) RegisterUser(email string) error {
 		return ErrUserAlreadyRegisted
 	}
 	u = &User{
-		Email: email,
+		Email:   email,
 		RegTime: time.Now(),
 	}
 	if err = db.SetUser(u); err != nil {
