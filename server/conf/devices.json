@@ -69,4 +69,16 @@
      "sort_seq":"6",
      "default_item_option":"61",
      "is_featured":"Y"
- }]
+ },
+    {
+        "device_id": "23",
+        "description": "Samsung Galaxy S5",
+        "short_description": "Galaxy S5",
+        "short_name": "samsung-galaxy-s5",
+        "status": "A",
+        "show_product_shot": "N",
+        "is_default_for_collection": "N",
+        "sort_seq": "35",
+        "default_item_option": "231",
+        "is_featured": "Y"
+    }]

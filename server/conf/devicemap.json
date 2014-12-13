@@ -42,5 +42,17 @@
 	    "status": "A",
 	    "sort_seq": "5"
 	}
+    },
+    "samsung-galaxy-s5": {
+        "1": {
+            "id": "1",
+            "description": "Classic Snap",
+            "short_description": "Classic Snap",
+            "short_name": "case",
+            "allow_design": "Y",
+            "allow_sdk": "Y",
+            "status": "A",
+            "sort_seq": "1"
+        }
     }
 }
