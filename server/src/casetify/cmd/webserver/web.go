@@ -232,6 +232,7 @@ func fnRegisterNewUser(w http.ResponseWriter, req *http.Request, user *UserInfo)
 		fmt.Printf("register user %s err %v\n", email, err)
 		return
 	}
+
 	user.Email = email
 	io.WriteString(w, "1120")
 }
