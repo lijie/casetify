@@ -35,6 +35,7 @@ var serverconf ServerConf
 func init() {
 	userfnmap = make(map[string]func(http.ResponseWriter, *http.Request, *UserInfo))
 	userfnmap["getUserAlbumPhoto"] = fnGetUserAlbumPhoto
+	userfnmap["getUserPhoto"] = fnGetUserPhoto
 	userfnmap["getUserInfo"] = fnGetUserInfo
 	userfnmap["registerNewUser"] = fnRegisterNewUser
 	userfnmap["getNextDefaultArtworkName"] = fnGetNextDefaultArtworkName
@@ -169,9 +170,23 @@ func fnGetNextDefaultArtworkName(w http.ResponseWriter, req *http.Request, user 
 	io.WriteString(w, "Design #1")
 }
 
+func fnGetUserPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	sign := req.FormValue("signInWith")
+	if len(sign) == 0 {
+		return
+	}
+	if sign == "1" {
+		// get facebook photo
+	}
+}
+
 func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	if !user.HasFacebookToken() {
 		log.Printf("no facebook token\n")
+		return
+	}
+	sign := req.FormValue("signInWith")
+	if len(sign) == 0 || sign != "2" {
 		return
 	}
 	album, err := user.FacebookApi.GetAlbums()
@@ -314,8 +329,8 @@ func initWebService() {
 		http.HandleFunc("/getuploadlist", HandleGetUploadList)
 		http.HandleFunc("/controllers/mapper", HandleMapper)
 		http.HandleFunc("/user", HandleUser)
-		http.HandleFunc("/save_image", HandlePreview)
-		http.HandleFunc("/save_data", HandlePreviewData)
+		http.HandleFunc("/save_image", HandleSaveImage)
+		http.HandleFunc("/save_data", HandleSaveData)
 		http.HandleFunc("/auth", HandleAuth)
 		http.HandleFunc("/authentication", HandleAuthentication)
 	} else {

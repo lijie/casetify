@@ -26,7 +26,7 @@ type UserInfo struct {
 	InstagramApi   *instagram.Instagram
 	FacebookApi    *facebook.Facebook
 	IsLogin        bool
-	UploadList     []*FileUploadInfo
+	UploadList     []*ProtoFileUploadInfo
 }
 
 type CaseInfo struct {

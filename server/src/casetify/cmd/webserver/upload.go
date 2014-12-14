@@ -106,12 +106,6 @@ func responseUploadErr() {
 
 }
 
-type FileUploadInfo struct {
-	Id       string `json:"id"`
-	Uri      string `json:"uri"`
-	FileSize int64  `json:"file_size", string`
-}
-
 func generateFileName(name string) string {
 	h := sha1.New()
 	io.WriteString(h, name)
@@ -200,7 +194,7 @@ func HandleUpload2(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	info := &FileUploadInfo{
+	info := &ProtoFileUploadInfo{
 		Id:       outname,
 		Uri:      "/data/upload/" + outname + ".png",
 		FileSize: n,
@@ -262,7 +256,7 @@ func LocalPath2URL(path string) string {
 	return "http://127.0.0.1:8082" + path[len(prefix):]
 }
 
-func HandlePreview(w http.ResponseWriter, req *http.Request) {
+func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	defer req.Body.Close()
 
@@ -321,35 +315,9 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	// save caseinfo to db
 }
 
-type ProtoCaseTransform struct {
-	TransLeft float64 `json:"transLeft"`
-	TransTop  float64 `json:"transTop"`
-	Scale     float64 `json:"scale"`
-}
-
-type ProtoCaseHldrSize struct {
-	Width  int    `json:"width"`
-	Height int    `json:"Height"`
-	Type   string `json:"type"`
-}
-
-type ProtoCaseData struct {
-	Img        []string             `json:"img"`
-	LowResImg  []string             `json:"lowResImg"`
-	Transform  []ProtoCaseTransform `json:"transform"`
-	HldrSize   []ProtoCaseHldrSize  `json:"hldrSize"`
-	Text       []string             `json:"text"`
-	ID         string               `json:id`
-	ImgCount   int                  `json:"imgCount"`
-	DeviceType string               `json:"deviceType"`
-	ItemType   string               `json:"itemType"`
-	Template   string               `json:"template"`
-	Version    int                  `json:"version"`
-	Filter     string               `json:"filter"`
-	Aqua       bool                 `json:"aqua"`
-}
-
-func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
+// HandleSaveData
+// Save user custom case info
+func HandleSaveData(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
@@ -371,7 +339,6 @@ func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
 	a, _ := url.QueryUnescape(savestr)
 	var p ProtoCaseData
 	json.Unmarshal([]byte(a), &p)
-	fmt.Printf("savestring:\n%v\n", p)
 	
 	c := NewCaseInfo(user.Email, "261")
 	io.WriteString(w, c.CaseID)

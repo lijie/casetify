@@ -90,6 +90,7 @@ type DB struct {
 	db      *mgo.Database
 	usertb  *mgo.Collection
 	casetb  *mgo.Collection
+	casetb2 *mgo.Collection
 	ordertb *mgo.Collection
 }
 
@@ -206,9 +207,16 @@ func (db *DB) RegisterUser(email string) error {
 }
 
 func (db *DB) SetCase(cs *Case) error {
-	_, err := db.usertb.Upsert(bson.M{"_id": cs.CaseID}, cs)
+	_, err := db.casetb.Upsert(bson.M{"_id": cs.CaseID}, cs)
 	return err
 }
+
+// Save case info
+// and returns case id
+//func (db *DB) SetCase2(cs *) error {
+//	_, err := db.casetb2.Upsert(bson.M{"_id": cs.CaseID}, cs)
+//	return err
+//}
 
 func NewDB(url string) (*DB, error) {
 	var err error
@@ -229,6 +237,11 @@ func NewDB(url string) (*DB, error) {
 	}
 	db.casetb = db.db.C("case")
 	if db.casetb == nil {
+		db.session.Close()
+		return nil, errors.New("table not found")
+	}
+	db.casetb2 = db.db.C("case2")
+	if db.casetb2 == nil {
 		db.session.Close()
 		return nil, errors.New("table not found")
 	}
