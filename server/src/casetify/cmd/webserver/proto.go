@@ -10,6 +10,7 @@ type ProtoPhoto struct {
 	Images map[string]string
 }
 
+// 
 type ProtoAlbum struct {
 	ID string `json:"id"`
 	Name string `json:"name"`

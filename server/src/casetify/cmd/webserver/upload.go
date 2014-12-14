@@ -11,10 +11,11 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"net/url"
 	"os"
-	"time"
 	"strconv"
+	"time"
+	"log"
+	"net/url"
 )
 
 func saveFile(part *multipart.Part) {
@@ -223,12 +224,12 @@ func HandleGetUploadList(w http.ResponseWriter, req *http.Request) {
 		start = start - 1
 		pagesize, _ := strconv.Atoi(req.FormValue("pageSize"))
 		// no more data
-		if len(user.UploadList) <= start * pagesize {
+		if len(user.UploadList) <= start*pagesize {
 			io.WriteString(w, "1222")
 			return
 		}
 		offset := len(user.UploadList) % pagesize
-		b, _ := json.Marshal(user.UploadList[start*pagesize:offset])
+		b, _ := json.Marshal(user.UploadList[start*pagesize : offset])
 		w.Write(b)
 	}
 }
@@ -320,6 +321,34 @@ func HandlePreview(w http.ResponseWriter, req *http.Request) {
 	// save caseinfo to db
 }
 
+type ProtoCaseTransform struct {
+	TransLeft float64 `json:"transLeft"`
+	TransTop  float64 `json:"transTop"`
+	Scale     float64 `json:"scale"`
+}
+
+type ProtoCaseHldrSize struct {
+	Width  int    `json:"width"`
+	Height int    `json:"Height"`
+	Type   string `json:"type"`
+}
+
+type ProtoCaseData struct {
+	Img        []string             `json:"img"`
+	LowResImg  []string             `json:"lowResImg"`
+	Transform  []ProtoCaseTransform `json:"transform"`
+	HldrSize   []ProtoCaseHldrSize  `json:"hldrSize"`
+	Text       []string             `json:"text"`
+	ID         string               `json:id`
+	ImgCount   int                  `json:"imgCount"`
+	DeviceType string               `json:"deviceType"`
+	ItemType   string               `json:"itemType"`
+	Template   string               `json:"template"`
+	Version    int                  `json:"version"`
+	Filter     string               `json:"filter"`
+	Aqua       bool                 `json:"aqua"`
+}
+
 func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	user, err := RestoreUserInfoFromCookie(w, req)
@@ -330,11 +359,20 @@ func HandlePreviewData(w http.ResponseWriter, req *http.Request) {
 
 	// TODO: need email!!
 	if user.Email == "" {
-		user.Email = "test@test.com"
-		fmt.Printf("user email err\n")
-		//		return
+		return
 	}
 
+	savestr := req.FormValue("saveString")
+	if len(savestr) == 0 {
+		log.Printf("no saveString?\n")
+		return
+	}
+
+	a, _ := url.QueryUnescape(savestr)
+	var p ProtoCaseData
+	json.Unmarshal([]byte(a), &p)
+	fmt.Printf("savestring:\n%v\n", p)
+	
 	c := NewCaseInfo(user.Email, "261")
 	io.WriteString(w, c.CaseID)
 }
