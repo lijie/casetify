@@ -5,10 +5,10 @@ import (
 	"casetify/instagram"
 	myoauth "casetify/oauth"
 	"code.google.com/p/goauth2/oauth"
+	"code.google.com/p/log4go"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	_ "github.com/gorilla/sessions"
 	"io"
 	"io/ioutil"
@@ -93,22 +93,22 @@ func FindUser(rid string) *UserInfo {
 func initAPI(apiname string, info *UserInfo) error {
 	f, err := os.Open("conf/" + apiname + ".json")
 	if err != nil {
-		fmt.Printf("open %s.json err %v\n", apiname, err)
+		Logger.Logf(log4go.ERROR, "open %s.json err %v\n", apiname, err)
 		return err
 	}
 	defer f.Close()
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
-		fmt.Printf("read %s.json err %v\n", apiname, err)
+		Logger.Logf(log4go.ERROR, "read %s.json err %v\n", apiname, err)
 		return err
 	}
-	fmt.Println(b)
+	// fmt.Println(b)
 	conf := &myoauth.Config{}
 	if err = json.Unmarshal(b, conf); err != nil {
-		fmt.Printf("unmarshal %s.json err %v\n", apiname, err)
+		Logger.Logf(log4go.ERROR, "unmarshal %s.json err %v\n", apiname, err)
 		return err
 	}
-	fmt.Printf("%s conf %v\n", apiname, conf)
+	// fmt.Printf("%s conf %v\n", apiname, conf)
 	if apiname == "instagram" {
 		info.InstagramApi = instagram.NewInstagram(conf)
 	} else if apiname == "facebook" {
@@ -139,7 +139,7 @@ func CreateRid(req *http.Request) (string, error) {
 
 func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 	session, _ := CookieStore.Get(req, "session-name")
-	fmt.Println(session)
+	// fmt.Println(session)
 
 	rid, ok := session.Values["rid"]
 	if ok && len(rid.(string)) > 8 {
@@ -151,7 +151,7 @@ func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("new RID %s\n", ridstr)
+	// fmt.Printf("new RID %s\n", ridstr)
 
 	session.Values["rid"] = ridstr
 	session.Save(req, w)

@@ -3,16 +3,17 @@ package main
 import (
 	"casetify/db"
 	"flag"
-	"fmt"
 	"github.com/gorilla/sessions"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 	"io/ioutil"
 	"encoding/json"
+	"code.google.com/p/log4go"
+	"fmt"
+	"os"
 )
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -43,8 +44,6 @@ func init() {
 
 func HandleTestCookie2(w http.ResponseWriter, req *http.Request) {
 	session, _ := CookieStore.Get(req, "session-name")
-	fmt.Println(session)
-
 	session.Values["uid"] = "andrewli"
 	session.Save(req, w)
 	io.WriteString(w, "hello, world!\n")
@@ -52,10 +51,6 @@ func HandleTestCookie2(w http.ResponseWriter, req *http.Request) {
 
 // not work, why ?
 func HandleTestCookie(w http.ResponseWriter, req *http.Request) {
-	fmt.Printf("print cookie:\n")
-	fmt.Println(req.Cookies())
-
-	fmt.Printf("set cookie:\n")
 	expires := time.Now().AddDate(0, 0, 1)
 	cookie := &http.Cookie{
 		Name:       "uid",
@@ -75,17 +70,16 @@ func HandleTestCookie(w http.ResponseWriter, req *http.Request) {
 }
 
 func HandleTestGet(w http.ResponseWriter, req *http.Request) {
-	values := req.URL.Query()
-	fmt.Println(values["param"])
+	// values := req.URL.Query()
 }
 
 func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
-	fmt.Printf("HandleFacebookRedirect %v\n", req)
+	Logger.Debug("HandleFacebookRedirect")
 
 	// get uid from request
 	state := strings.Split(req.FormValue("state"), "|")
 	if len(state) < 2 {
-		fmt.Printf("no state\n")
+		Logger.Error("no state\n")
 		return
 	}
 
@@ -96,17 +90,17 @@ func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
 
 	token, err := info.FacebookApi.GetAccessToken(w, req)
 	if err != nil {
-		fmt.Printf("GetAccessToken err %v\n", err)
+		Logger.Error("GetAccessToken err:\n", err)
 		return
 	}
 
 	// save token
 	info.FacebookToken = token
-	fmt.Printf("Get facebook token %v for user %s\n", token, info.Rid)
+	Logger.Debug("Get facebook token %v for user %s\n", token, info.Rid)
 
 	t, err := template.New("auth_success.htm").Delims("{{{", "}}}").ParseFiles("../htdocs/auth_success.htm")
 	if err != nil {
-		fmt.Println(err)
+		Logger.Error(err)
 		return
 	}
 	t.Execute(w, nil)
@@ -116,11 +110,11 @@ func HandleFacebookRedirect(w http.ResponseWriter, req *http.Request) {
 // 失败, 输出失败页面
 // 成功, 主动拉取用户最新的N张照片并展示供用户选择
 func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
-	fmt.Printf("HandleInstagramRedirect %v\n", req)
+	Logger.Debug("HandleInstagramRedirect")
 	// get uid from request
 	state := strings.Split(req.FormValue("state"), "|")
 	if len(state) < 2 {
-		fmt.Printf("no state\n")
+		Logger.Error("no state")
 		return
 	}
 
@@ -131,13 +125,13 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 
 	token, err := info.InstagramApi.GetAccessToken(w, req)
 	if err != nil {
-		fmt.Printf("GetAccessToken err %v\n", err)
+		Logger.Error("GetAccessToken err:\n", err)
 		return
 	}
 
 	// save token
 	info.InstagramToken = token
-	fmt.Printf("Get instagram token %v for user %s\n", token, info.Rid)
+	Logger.Debug("Get instagram token %v for user %s\n", token, info.Rid)
 
 	// TODO(lijie): output html template
 //	medias, err := info.InstagramApi.RecentMedia(token, 10)
@@ -148,7 +142,7 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 
 	t, err := template.New("auth_success.htm").Delims("{{{", "}}}").ParseFiles("../htdocs/auth_success.htm")
 	if err != nil {
-		fmt.Println(err)
+		Logger.Error(err)
 		return
 	}
 	t.Execute(w, nil)
@@ -166,6 +160,8 @@ func HandleLogin(w http.ResponseWriter, req *http.Request) {
 func HandleOrder(w http.ResponseWriter, req *http.Request) {
 }
 
+// TODO:
+// need invalid artwork name
 func fnGetNextDefaultArtworkName(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	io.WriteString(w, "Design #1")
 }
@@ -182,7 +178,7 @@ func fnGetUserPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 
 func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	if !user.HasFacebookToken() {
-		log.Printf("no facebook token\n")
+		Logger.Error("no facebook token\n")
 		return
 	}
 	sign := req.FormValue("signInWith")
@@ -191,7 +187,7 @@ func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInf
 	}
 	album, err := user.FacebookApi.GetAlbums()
 	if err != nil {
-		log.Printf("GetAlbums err %v\n", err)
+		Logger.Error("GetAlbums err:\n", err)
 		return
 	}
 	if album == nil || len(album) == 0 {
@@ -215,7 +211,7 @@ func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInf
 		pa[i].CoverPhoto.Images["standard_resolution"] = p
 		pa[i].CoverPhoto.Images["squared_thumbanil"] = p
 	}
-	log.Printf("proto images:\n%v\n", pa)
+	// log.Printf("proto images:\n%v\n", pa)
 	b, err := json.Marshal(pa)
 	if err == nil {
 		w.Write(b)
@@ -231,7 +227,7 @@ func fnGetUserInfo(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	}
 	b, err := ioutil.ReadFile("conf/user.json")
 	if err != nil {
-		fmt.Println("read user.json err %v\n", err)
+		Logger.Error("read user.json err:\n", err)
 		return
 	}
 	w.Write(b)
@@ -244,7 +240,7 @@ func fnRegisterNewUser(w http.ResponseWriter, req *http.Request, user *UserInfo)
 		return
 	}
 	if err := CaseDB.RegisterUser(email); err != nil && err != db.ErrUserAlreadyRegisted {
-		fmt.Printf("register user %s err %v\n", email, err)
+		Logger.Error("register user: %s err %v", email, err)
 		return
 	}
 
@@ -272,7 +268,7 @@ func HandleUser(w http.ResponseWriter, req *http.Request) {
 func HandleAuth(w http.ResponseWriter, req *http.Request) {
 	ui, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("read user info err %v\n", err)
+		Logger.Error("read user info err:\n", err)
 		return
 	}
 
@@ -289,7 +285,7 @@ func HandleAuth(w http.ResponseWriter, req *http.Request) {
 func HandleAuthentication(w http.ResponseWriter, req *http.Request) {
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("read user info err %v\n", err)
+		Logger.Error("read user info err:\n", err)
 		return
 	}
 	fn := req.FormValue("fn")
@@ -342,22 +338,28 @@ func initWebService() {
 func initLogicServer() {
 	b, err := ioutil.ReadFile("conf/server.json")
 	if err != nil {
-		fmt.Printf("read server.json err %v\n", err)
+		Logger.Error("read server.json err:\n", err)
 		return
 	}
 	if err := json.Unmarshal(b, &serverconf); err != nil {
-		fmt.Printf("unmarshal server json err %v\n", err)
+		Logger.Error("unmarshal server json err:\n", err)
 		return
 	}
 	
 	CaseDB, err = db.NewDB(serverconf.Database)
 	if err != nil {
-		log.Fatal("Connect DB failed %v\n", err)
+		Logger.Error("Connect DB failed\n", err)
+		os.Exit(255)
 	}
-	fmt.Printf("Connect database %s ok\n", serverconf.Database)
+	Logger.Info("Connect database %s ok", serverconf.Database)
 }
 
+var Logger log4go.Logger
+
 func main() {
+	Logger = log4go.NewDefaultLogger(log4go.DEBUG)
+	Logger.AddFilter("log", log4go.FINE, log4go.NewFileLogWriter("log/casetify.log", true).SetRotateDaily(true))
+	Logger.Info("Server starting...")
 	flag.Parse()
 
 	ReadCaseConfig("conf/caseconf.json")
@@ -368,6 +370,6 @@ func main() {
 	// run webservice
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if err != nil {
-		log.Fatal("fatal %p", err)
+		Logger.Error("fatal", err)
 	}
 }

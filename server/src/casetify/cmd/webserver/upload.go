@@ -1,16 +1,15 @@
 package main
 
 import (
+	"code.google.com/p/log4go"
 	_ "crypto/md5"
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	_ "html/template"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -84,13 +83,9 @@ func NewFileSave(r *multipart.Reader) *FileSave {
 }
 
 func HandleUpload(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("here")
-	fmt.Println(w)
-	fmt.Println(req)
-
 	mr, err := req.MultipartReader()
 	if err != nil {
-		fmt.Println(err)
+		Logger.Error(err)
 		return
 	}
 
@@ -99,7 +94,7 @@ func HandleUpload(w http.ResponseWriter, req *http.Request) {
 	info := saver.Save()
 
 	out, _ := json.Marshal(info)
-	fmt.Println(string(out))
+	// fmt.Println(string(out))
 	w.Write(out)
 }
 
@@ -147,7 +142,7 @@ func HandleDeleteUploadFile(w http.ResponseWriter, req *http.Request) {
 	id := req.FormValue("uploadedFileId")
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("restore userinfo err %v\n", err)
+		Logger.Error("restore userinfo err:\n", err)
 		return
 	}
 	for i := 0; i < len(user.UploadList); i++ {
@@ -168,30 +163,30 @@ func HandleUpload2(w http.ResponseWriter, req *http.Request) {
 
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("restore userinfo err %v\n", err)
+		Logger.Error("restore userinfo err:\n", err)
 		return
 	}
 
 	f, header, err := req.FormFile("fileUploader")
 	if err != nil {
-		fmt.Println(err)
+		Logger.Error(err)
 		return
 	}
 	defer f.Close()
 
 	outname := generateFileName(header.Filename)
-	fmt.Printf("src name %s out name %s\n", header.Filename, outname)
+	// fmt.Printf("src name %s out name %s\n", header.Filename, outname)
 
 	outf, err := os.OpenFile("../htdocs/data/upload/"+outname+".png", os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
-		fmt.Printf("open out file err %v\n", err)
+		Logger.Error("open out file err:\n", err)
 		return
 	}
 	defer outf.Close()
 
 	n, err := io.Copy(outf, f)
 	if err != nil {
-		fmt.Printf("write out file err %v\n", err)
+		Logger.Error("write out file err:\n", err)
 		return
 	}
 
@@ -210,7 +205,7 @@ func HandleGetUploadList(w http.ResponseWriter, req *http.Request) {
 	fn := req.FormValue("fn")
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("restore userinfo err %v\n", err)
+		Logger.Error("restore userinfo err:\n", err)
 		return
 	}
 
@@ -236,7 +231,7 @@ func HandleMapper(w http.ResponseWriter, req *http.Request) {
 	}
 	f, err := os.Open("../htdocs/" + img)
 	if err != nil {
-		fmt.Printf("open %s error %v\n", img, err)
+		Logger.Logf(log4go.ERROR, "open %s error %v\n", img, err)
 		return
 	}
 	defer f.Close()
@@ -276,22 +271,21 @@ func caseInfoFromCaseData(data *ProtoCaseData) *ProtoCaseInfo {
 }
 
 func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(req)
 	defer req.Body.Close()
 
 	israw := req.FormValue("is_raw")
 	id := req.FormValue("id")
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("read user info err %v\n", err)
+		Logger.Error("read user info err:\n", err)
 		return
 	}
 	if user.CurrentCase == nil {
-		log.Printf("no case data but try to save case image!\n")
+		Logger.Error("no case data but try to save case image!\n")
 		return
 	}
 	if id != user.CurrentCase.ID {
-		log.Printf("invalid case id, expect %s but %s\n", user.CurrentCase.ID, id)
+		Logger.Logf(log4go.ERROR, "invalid case id, expect %s but %s\n", user.CurrentCase.ID, id)
 		return
 	}
 
@@ -303,7 +297,7 @@ func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 	// save image to disk
 	decoder := base64.NewDecoder(base64.StdEncoding, req.Body)
 	if decoder == nil {
-		fmt.Printf("base64 decoder err\n")
+		Logger.Error("base64 decoder err\n")
 		return
 	}
 	israw_str := ""
@@ -313,7 +307,7 @@ func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 	path := "../htdocs/data/preview/" + id + israw_str + ".png"
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
-		fmt.Printf("save file %s err %v\n", id, err)
+		Logger.Logf(log4go.ERROR, "save file %s err %v\n", id, err)
 		return
 	}
 	defer f.Close()
@@ -324,19 +318,20 @@ func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 		cc.Preview = path
 		return
 	}
-	
+
 	cc.PreviewRaw = path
 	// TODO:
 	// save user.CurrentCase to db and clear it
+	Logger.Debug("Save case data to db:\n%v\n", *cc)
 	if err = CaseDB.SetCase2(cc.ID, cc); err != nil {
-		log.Printf("Case save to db err %v\n", err)
+		Logger.Error("Case save to db err:\n", err)
 		return
 	}
-	
+
 	ci := caseInfoFromCaseData(cc)
 	out, err := json.Marshal(ci)
 	if err != nil {
-		fmt.Printf("marshal caseinfo err %v\n", err)
+		Logger.Error("marshal caseinfo err:\n", err)
 		return
 	}
 	w.Write(out)
@@ -345,10 +340,10 @@ func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 // HandleSaveData
 // Save user custom case info
 func HandleSaveData(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(req)
+	// fmt.Println(req)
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
-		fmt.Printf("read user info err %v\n", err)
+		Logger.Error("read user info err:\n", err)
 		return
 	}
 
@@ -359,21 +354,22 @@ func HandleSaveData(w http.ResponseWriter, req *http.Request) {
 
 	savestr := req.FormValue("saveString")
 	if len(savestr) == 0 {
-		log.Printf("no saveString?\n")
+		Logger.Error("no saveString?\n")
 		return
 	}
 
 	a, _ := url.QueryUnescape(savestr)
 	p := &ProtoCaseData{
 		CreateTime: time.Now(),
-		ID: bson.NewObjectId().Hex(),
-		UID: user.Email,
+		ID:         bson.NewObjectId().Hex(),
+		UID:        user.Email,
 	}
 	if err = json.Unmarshal([]byte(a), p); err != nil {
-		log.Printf("Umarshal case data err %v\n", err)
+		Logger.Error("Umarshal case data err:\n", err)
 		return
 	}
-	log.Printf("save CaseData:\n%v\n", *p)
+
+	Logger.Debug("client send CaseData: %v", *p)
 	user.CurrentCase = p
 
 	// resp case id

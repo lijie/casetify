@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"text/template"
 	"net/http"
 	"strings"
 	"os"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 )
 
 type ServerDevices struct {
@@ -73,14 +71,14 @@ func readJson(path string) []byte {
 	// read devices.json
 	f, err := os.Open(path)
 	if err != nil {
-		log.Printf("read err %v\n", err)
+		Logger.Error("read err: %v\n", err)
 		return nil
 	}
 	defer f.Close()
 
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
-		log.Printf("read err %v\n", err)
+		Logger.Error("read err: %v\n", err)
 		return nil
 	}
 
@@ -111,7 +109,7 @@ func unmarshalDeviceMap() map[string]map[string]map[string]string {
 	var v map[string]map[string]map[string]string
 	err := json.Unmarshal(b, &v)
 	if err != nil {
-		log.Printf("Unmarshal device map err %v\n", err)
+		Logger.Error("Unmarshal device map err:%v\n", err)
 		return nil
 	}
 
@@ -129,15 +127,12 @@ func unmarshalItemOption() map[string][]map[string]string {
 	if err != nil {
 		return nil
 	}
-	fmt.Println(v)
+	// fmt.Println(v)
 	return v
 }
 
 func HandleDesign(w http.ResponseWriter, req *http.Request) {
 	user, err := RestoreUserInfoFromCookie(w, req)
-	if err == nil {
-		fmt.Println(user.InstagramApi.ApiURL(user.Rid))
-	}
 	sub := strings.Split(req.RequestURI, "/")
 	phone_type := "iphone6"
 	if len(sub) >= 3 {
@@ -146,7 +141,7 @@ func HandleDesign(w http.ResponseWriter, req *http.Request) {
 
 	t, err := template.New("iphone6.htm").Delims("{{{", "}}}").ParseFiles("../htdocs/iphone6.htm")
 	if err != nil {
-		fmt.Println(err)
+		Logger.Error(err)
 		return
 	}
 
@@ -168,7 +163,7 @@ func HandleDesign(w http.ResponseWriter, req *http.Request) {
 	
 	err = t.Execute(w, data)
 	if err != nil {
-		fmt.Println(err)
+		Logger.Error(err)
 		return
 	}
 }
