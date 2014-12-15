@@ -212,11 +212,10 @@ func (db *DB) SetCase(cs *Case) error {
 }
 
 // Save case info
-// and returns case id
-//func (db *DB) SetCase2(cs *) error {
-//	_, err := db.casetb2.Upsert(bson.M{"_id": cs.CaseID}, cs)
-//	return err
-//}
+func (db *DB) SetCase2(id string, cs interface{}) error {
+	_, err := db.casetb2.Upsert(bson.M{"_id": id}, cs)
+	return err
+}
 
 func NewDB(url string) (*DB, error) {
 	var err error
