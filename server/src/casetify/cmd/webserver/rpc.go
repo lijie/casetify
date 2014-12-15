@@ -27,6 +27,7 @@ type UserInfo struct {
 	FacebookApi    *facebook.Facebook
 	IsLogin        bool
 	UploadList     []*ProtoFileUploadInfo
+	CurrentCase    *ProtoCaseData
 }
 
 type CaseInfo struct {
@@ -156,28 +157,6 @@ func GetCreateRid(w http.ResponseWriter, req *http.Request) (string, error) {
 	session.Save(req, w)
 	return ridstr, nil
 }
-
-//func readRidFromCookie(w http.ResponseWriter, req *http) (string, error) {
-//	// read rid from cookie
-//	session, err := CookieStore.Get(req, "session-name")
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	rid, ok := session.Values["rid"]
-//	if !ok || len(rid) < 8 {
-//
-//}
-//
-//func RestoreUserInfoFromCookie2(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
-//	rid, err := readRidFromCookie(w, req)
-//	if err != nil || len(rid) < 8 {
-//		// no rid, create
-//		rid = createRid(req)
-//		// create userinfo
-//
-//	}
-//}
 
 func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserInfo, error) {
 	rid, err := GetCreateRid(w, req)

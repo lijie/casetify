@@ -7,15 +7,16 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"gopkg.in/mgo.v2/bson"
 	_ "html/template"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
-	"log"
-	"net/url"
 )
 
 func saveFile(part *multipart.Part) {
@@ -256,23 +257,50 @@ func LocalPath2URL(path string) string {
 	return "http://127.0.0.1:8082" + path[len(prefix):]
 }
 
+func caseInfoFromCaseData(data *ProtoCaseData) *ProtoCaseInfo {
+	c := &ProtoCaseInfo{
+		CaseID:     data.ID,
+		UserID:     data.UID,
+		CreateTime: data.CreateTime,
+		// TODO
+		ItemOption: data.ItemType,
+		UnitPrice:  "39.5",
+		// TODO
+		ItemName:   data.ItemType,
+		PreviewURL: make(map[string]string),
+	}
+	c.PreviewURL["S"] = LocalPath2URL(data.Preview)
+	c.PreviewURL["M"] = LocalPath2URL(data.Preview)
+	c.PreviewURL["L"] = LocalPath2URL(data.Preview)
+	return c
+}
+
 func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(req)
 	defer req.Body.Close()
 
 	israw := req.FormValue("is_raw")
 	id := req.FormValue("id")
-	//	user, err := RestoreUserInfoFromCookie(w, req)
-	//	if err != nil {
-	//		fmt.Printf("read user info err %v\n", err)
-	//		return
-	//	}
+	user, err := RestoreUserInfoFromCookie(w, req)
+	if err != nil {
+		fmt.Printf("read user info err %v\n", err)
+		return
+	}
+	if user.CurrentCase == nil {
+		log.Printf("no case data but try to save case image!\n")
+		return
+	}
+	if id != user.CurrentCase.ID {
+		log.Printf("invalid case id, expect %s but %s\n", user.CurrentCase.ID, id)
+		return
+	}
 
 	header := []byte("data:image/png;base64,")
 	b := make([]byte, len(header))
 	// ignore header
 	req.Body.Read(b)
 
+	// save image to disk
 	decoder := base64.NewDecoder(base64.StdEncoding, req.Body)
 	if decoder == nil {
 		fmt.Printf("base64 decoder err\n")
@@ -291,28 +319,23 @@ func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 	defer f.Close()
 	io.Copy(f, decoder)
 
-	ci := FindCaseInfo(id)
-	if ci == nil {
+	cc := user.CurrentCase
+	if israw != "Y" {
+		cc.Preview = path
 		return
 	}
-
-	if israw == "Y" {
-		ci.localPreviewRawPath = path
-		ci.PreviewURL["S"] = LocalPath2URL(ci.localPreviewPath)
-		ci.PreviewURL["M"] = LocalPath2URL(ci.localPreviewPath)
-		ci.PreviewURL["L"] = LocalPath2URL(ci.localPreviewPath)
-		out, err := json.Marshal(ci)
-		if err != nil {
-			fmt.Printf("marshal caseinfo err %v\n", err)
-			return
-		}
-		w.Write(out)
-	} else {
-		ci.localPreviewPath = path
-	}
-
+	
+	cc.PreviewRaw = path
 	// TODO:
-	// save caseinfo to db
+	// save user.CurrentCase to db and clear it
+	
+	ci := caseInfoFromCaseData(cc)
+	out, err := json.Marshal(ci)
+	if err != nil {
+		fmt.Printf("marshal caseinfo err %v\n", err)
+		return
+	}
+	w.Write(out)
 }
 
 // HandleSaveData
@@ -337,9 +360,18 @@ func HandleSaveData(w http.ResponseWriter, req *http.Request) {
 	}
 
 	a, _ := url.QueryUnescape(savestr)
-	var p ProtoCaseData
-	json.Unmarshal([]byte(a), &p)
-	
-	c := NewCaseInfo(user.Email, "261")
-	io.WriteString(w, c.CaseID)
+	p := &ProtoCaseData{
+		CreateTime: time.Now(),
+		ID: bson.NewObjectId().Hex(),
+		UID: user.Email,
+	}
+	if err = json.Unmarshal([]byte(a), p); err != nil {
+		log.Printf("Umarshal case data err %v\n", err)
+		return
+	}
+	log.Printf("save CaseData:\n%v\n", *p)
+	user.CurrentCase = p
+
+	// resp case id
+	io.WriteString(w, user.CurrentCase.ID)
 }
