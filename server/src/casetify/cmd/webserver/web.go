@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/gedex/go-instagram/instagram"
+	"strconv"
 )
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -126,7 +127,7 @@ func HandleInstagramRedirect(w http.ResponseWriter, req *http.Request) {
 
 	token, err := info.InstagramApi.GetAccessToken(w, req)
 	if err != nil {
-		Logger.Error("GetAccessToken err:\n", err)
+		Logger.Error("GetAccessToken err:%v\n", err)
 		return
 	}
 
@@ -186,18 +187,51 @@ func fnGetUserPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	if len(sign) == 0 {
 		return
 	}
-	if sign == "2" {
+	start := req.FormValue("pageStart")
+	if len(start) == 0 {
+		Logger.Error("getUserPhoto no start param\n")
+		return
+	}
+	idx, _ := strconv.Atoi(sign)
+	page, _ := strconv.Atoi(start)
+	idx--
+	page--
+	if idx == 1 {
 		// get facebook photo
-	} else {
+	} else if idx == 0 {
 		Logger.Debug("Get photo from instagram\n")
-		// get instagram photo
-		api := user.InstagramApi
-		medias, _, err := api.RecentMedia(10, "")
-		if err != nil {
-			Logger.Error("instagram get photo err %v\n", err)
-			return
+		var p []ProtoPhoto
+		if user.CachedImages[idx] != nil && len(user.CachedImages[idx]) > page {
+			Logger.Debug("get photo from cache, page %d", page)
+			// get photo from cache
+			p = user.CachedImages[idx][page].Images
+		} else {
+			nextid := ""
+			if len(user.CachedImages[idx]) > 0 {
+				nextid = user.CachedImages[idx][len(user.CachedImages[idx])-1].NextID
+			}
+			// no more photo
+			// TODO
+			// response error code?
+			if nextid == "" && page != 0 {
+				return
+			}
+
+			// get instagram photo
+			api := user.InstagramApi
+			Logger.Debug("get photo from nextid %s", nextid)
+			medias, pos, err := api.RecentMedia(10, nextid)
+			if err != nil {
+				Logger.Error("instagram get photo err %v\n", err)
+				return
+			}
+			p = media2ProtoPhoto(medias)
+			pp := PhotoPage{
+				Images: p,
+				NextID: pos.NextMaxID,
+			}
+			user.CachedImages[idx] = append(user.CachedImages[idx], pp)
 		}
-		p := media2ProtoPhoto(medias)
 		b, err := json.Marshal(p)
 		if err == nil {
 			w.Write(b)
