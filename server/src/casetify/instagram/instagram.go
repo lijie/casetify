@@ -1,11 +1,11 @@
 package instagram
 
 import (
+	myoauth "casetify/oauth"
 	"code.google.com/p/goauth2/oauth"
 	"fmt"
 	"github.com/gedex/go-instagram/instagram"
 	"net/http"
-	myoauth "casetify/oauth"
 )
 
 var InstagramClientID = "98961ff07b1e4974b0f88f561ba2b18d"
@@ -15,6 +15,7 @@ type Instagram struct {
 	client *instagram.Client
 	conf   *myoauth.Config
 	oconf  oauth.Config
+	token *oauth.Token
 }
 
 type Medias struct {
@@ -22,44 +23,22 @@ type Medias struct {
 }
 
 func (ig *Instagram) ApiURL(name string) string {
-	return "https://api.instagram.com/oauth/authorize/?response_type=code&client_id=" + ig.conf.ClientID +"&state=getcode|" + name +"&redirect_uri=" + ig.conf.RedirectURL
+	return "https://api.instagram.com/oauth/authorize/?response_type=code&client_id=" + ig.conf.ClientID + "&state=getcode|" + name + "&redirect_uri=" + ig.conf.RedirectURL
 }
 
-func (ig *Instagram) RecentMedia(token *oauth.Token, count int) (*Medias, error) {
-	ig.client.AccessToken = token.AccessToken
+func (ig *Instagram) RecentMedia(count int, maxid string) ([]instagram.Media, *instagram.ResponsePagination, error) {
+	ig.client.AccessToken = ig.token.AccessToken
 
 	opt := &instagram.Parameters{
 		Count: uint64(count),
 	}
-	media, _, err := ig.client.Users.RecentMedia("", opt)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
+	if len(maxid) > 0 {
+		opt.MaxID = maxid
 	}
-
-	if len(media) == 0 {
-		return nil, nil
-	}
-
-	m := &Medias{
-		URL: make([]string, len(media)),
-	}
-	for i := 0; i < len(media); i++ {
-		m.URL[i] = media[i].Images.Thumbnail.URL
-	}
-	return m, nil
+	return ig.client.Users.RecentMedia("self", opt)
 }
 
 func (ig *Instagram) GetAccessToken(w http.ResponseWriter, req *http.Request) (*oauth.Token, error) {
-//	config := &oauth.Config{
-//		ClientId:     ig.conf.ClientID,
-//		ClientSecret: ig.conf.ClientSecret,
-//		Scope:        "basic",
-//		AuthURL:      "https://api.instagram.com/oauth/authorize/",
-//		TokenURL:     "https://api.instagram.com/oauth/access_token",
-//		RedirectURL:  ig.conf.RedirectURL,
-//	}
-
 	fmt.Printf("exchange code %s\n", req.FormValue("code"))
 
 	t := &oauth.Transport{Config: &ig.oconf}
@@ -71,7 +50,7 @@ func (ig *Instagram) GetAccessToken(w http.ResponseWriter, req *http.Request) (*
 		fmt.Printf("get token err %v\n", err)
 		return nil, err
 	}
-
+	ig.token = token
 	return token, nil
 }
 
@@ -95,7 +74,7 @@ func NewInstagram(conf *myoauth.Config) *Instagram {
 		TokenURL:     "https://api.instagram.com/oauth/access_token",
 		RedirectURL:  ig.conf.RedirectURL,
 	}
-	
+
 	// ig.client.AccessToken = ig.AccessToken
 	return ig
 }

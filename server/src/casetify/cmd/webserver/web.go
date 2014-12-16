@@ -14,6 +14,7 @@ import (
 	"code.google.com/p/log4go"
 	"fmt"
 	"os"
+	"github.com/gedex/go-instagram/instagram"
 )
 
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -166,16 +167,48 @@ func fnGetNextDefaultArtworkName(w http.ResponseWriter, req *http.Request, user 
 	io.WriteString(w, "Design #1")
 }
 
+func media2ProtoPhoto(medias []instagram.Media) []ProtoPhoto {
+	p := make([]ProtoPhoto, len(medias))
+	for i := range medias {
+		p[i].ID = medias[i].ID
+		p[i].Images = make(map[string]string)
+		p[i].Images["low_resolution"] = medias[i].Images.LowResolution.URL
+		p[i].Images["thumbnail"] = medias[i].Images.Thumbnail.URL
+		p[i].Images["raw_uri"] = medias[i].Images.StandardResolution.URL
+		p[i].Images["standard_resolution"] = medias[i].Images.StandardResolution.URL
+		p[i].Images["squared_thumbanil"] = medias[i].Images.Thumbnail.URL
+	}
+	return p
+}
+
 func fnGetUserPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	sign := req.FormValue("signInWith")
 	if len(sign) == 0 {
 		return
 	}
-	if sign == "1" {
+	if sign == "2" {
 		// get facebook photo
+	} else {
+		Logger.Debug("Get photo from instagram\n")
+		// get instagram photo
+		api := user.InstagramApi
+		medias, _, err := api.RecentMedia(10, "")
+		if err != nil {
+			Logger.Error("instagram get photo err %v\n", err)
+			return
+		}
+		p := media2ProtoPhoto(medias)
+		b, err := json.Marshal(p)
+		if err == nil {
+			w.Write(b)
+		}
+		return
 	}
+	
 }
 
+// 获取用户相册
+// 仅facebook
 func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	if !user.HasFacebookToken() {
 		Logger.Error("no facebook token\n")
@@ -187,7 +220,7 @@ func fnGetUserAlbumPhoto(w http.ResponseWriter, req *http.Request, user *UserInf
 	}
 	album, err := user.FacebookApi.GetAlbums()
 	if err != nil {
-		Logger.Error("GetAlbums err:\n", err)
+		Logger.Error("GetAlbums err:\n%v\n", err)
 		return
 	}
 	if album == nil || len(album) == 0 {
@@ -289,12 +322,17 @@ func HandleAuthentication(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fn := req.FormValue("fn")
+	sign := req.FormValue("signInWith")
 	if fn == "checkValidAccessToken" {
-		if user.HasFacebookToken() {
+		if sign == "2" && user.HasFacebookToken() {
 			io.WriteString(w, "1001")
-		} else {
-			io.WriteString(w, "1000")
+			return
 		}
+		if sign == "1" && user.HasInstagramToken() {
+			io.WriteString(w, "1001")
+			return
+		}
+		io.WriteString(w, "1000")
 	}
 }
 
