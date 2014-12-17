@@ -18,8 +18,8 @@ import (
 )
 
 type PhotoPage struct {
-	Images []ProtoPhoto
 	NextID string
+	Page   int
 }
 
 type UserInfo struct {
@@ -33,7 +33,7 @@ type UserInfo struct {
 	IsLogin        bool
 	UploadList     []*ProtoFileUploadInfo
 	CurrentCase    *ProtoCaseData
-	CachedImages   [][]PhotoPage
+	PhotoPos       []PhotoPage
 }
 
 type CaseInfo struct {
@@ -129,7 +129,7 @@ func FindCreateUser(rid string) (*UserInfo, error) {
 	}
 	info := &UserInfo{
 		Rid: rid,
-		CachedImages: make([][]PhotoPage, 2),
+		PhotoPos: make([]PhotoPage, 2),
 	}
 	initAPI("instagram", info)
 	initAPI("facebook", info)

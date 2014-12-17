@@ -4,10 +4,10 @@ import (
 	myoauth "casetify/oauth"
 	"code.google.com/p/goauth2/oauth"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"errors"
 )
 
 var ErrorNotFound = errors.New("resource not found")
@@ -60,8 +60,19 @@ func (fb *Facebook) GetAlbums() ([]AlbumsData, error) {
 	return albums.Data, nil
 }
 
+type Cursors struct {
+	Before string `json:"before"`
+	After  string `json:"after"`
+}
+
+type Paging struct {
+	Cursors Cursors `json:"cursors"`
+	Next    string  `json:"next"`
+}
+
 type Photos struct {
-	Data []PhotosData `json:"data"`
+	Data   []PhotosData `json:"data"`
+	Paging Paging       `json:"paging"`
 }
 
 type PhotoImage struct {
@@ -82,12 +93,12 @@ type PhotosData struct {
 	Width   int          `json:"width"`
 }
 
-func (fb *Facebook) GetAlbumPhotos(albumid string) ([]PhotosData, error) {
-	url := fmt.Sprintf("https://graph.facebook.com/v2.2/%s/photos?access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", albumid, fb.token.AccessToken)
+func (fb *Facebook) GetAlbumPhotos(albumid string, nextid string, count int) (*Photos, error) {
+	url := fmt.Sprintf("https://graph.facebook.com/v2.2/%s/photos?limit=%d&after=%s&access_token=%s&format=json&method=get&pretty=0&suppress_http_code=1", albumid, count, nextid, fb.token.AccessToken)
 	photos := &Photos{}
 	fb.Do(url, photos)
 	fmt.Println(photos)
-	return photos.Data, nil
+	return photos, nil
 }
 
 func (fb *Facebook) GetPhoto(photoid string) (*PhotosData, error) {
@@ -109,7 +120,7 @@ func (fb *Facebook) GetAlbumCoverURL(albumid string) (string, error) {
 		return url, nil
 	}
 	return "", ErrorNotFound
-	
+
 }
 
 func (fb *Facebook) Do(url string, data interface{}) error {

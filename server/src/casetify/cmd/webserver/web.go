@@ -2,6 +2,7 @@ package main
 
 import (
 	"casetify/db"
+	"casetify/facebook"
 	"flag"
 	"github.com/gorilla/sessions"
 	"html/template"
@@ -182,6 +183,20 @@ func media2ProtoPhoto(medias []instagram.Media) []ProtoPhoto {
 	return p
 }
 
+func fb2ProtoPhoto(medias []facebook.PhotosData) []ProtoPhoto {
+	p := make([]ProtoPhoto, len(medias))
+	for i := range medias {
+		p[i].ID = medias[i].ID
+		p[i].Images = make(map[string]string)
+		p[i].Images["low_resolution"] = medias[i].Images[1].Source
+		p[i].Images["thumbnail"] = medias[i].Picture
+		p[i].Images["raw_uri"] = medias[i].Source
+		p[i].Images["standard_resolution"] = medias[i].Images[0].Source
+		p[i].Images["squared_thumbanil"] = medias[i].Picture
+	}
+	return p
+}
+
 func fnGetUserPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	sign := req.FormValue("signInWith")
 	if len(sign) == 0 {
@@ -192,53 +207,60 @@ func fnGetUserPhoto(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 		Logger.Error("getUserPhoto no start param\n")
 		return
 	}
+	albumid := req.FormValue("photoAlbumId")
 	idx, _ := strconv.Atoi(sign)
 	page, _ := strconv.Atoi(start)
 	idx--
 	page--
-	if idx == 1 {
-		// get facebook photo
-	} else if idx == 0 {
-		Logger.Debug("Get photo from instagram\n")
-		var p []ProtoPhoto
-		if user.CachedImages[idx] != nil && len(user.CachedImages[idx]) > page {
-			Logger.Debug("get photo from cache, page %d", page)
-			// get photo from cache
-			p = user.CachedImages[idx][page].Images
-		} else {
-			nextid := ""
-			if len(user.CachedImages[idx]) > 0 {
-				nextid = user.CachedImages[idx][len(user.CachedImages[idx])-1].NextID
-			}
-			// no more photo
-			// TODO
-			// response error code?
-			if nextid == "" && page != 0 {
-				return
-			}
-
-			// get instagram photo
-			api := user.InstagramApi
-			Logger.Debug("get photo from nextid %s", nextid)
-			medias, pos, err := api.RecentMedia(10, nextid)
-			if err != nil {
-				Logger.Error("instagram get photo err %v\n", err)
-				return
-			}
-			p = media2ProtoPhoto(medias)
-			pp := PhotoPage{
-				Images: p,
-				NextID: pos.NextMaxID,
-			}
-			user.CachedImages[idx] = append(user.CachedImages[idx], pp)
-		}
-		b, err := json.Marshal(p)
-		if err == nil {
-			w.Write(b)
-		}
+	var p []ProtoPhoto
+	// 获取当前页的起始ID
+	// 为空则从第一页开始
+	nextid := user.PhotoPos[idx].NextID
+	// ID为空且不是第一页
+	// 说明已经翻倒最后一页了
+	if nextid == "" && user.PhotoPos[idx].Page != 0 {
 		return
 	}
 	
+	if idx == 1 {
+		if len(albumid) == 0 {
+			Logger.Error("get facebook photo but no albumid")
+			return
+		}
+		// get facebook photo
+		Logger.Debug("Get photo from facebook, album %s", albumid)
+		api := user.FacebookApi
+		media, err := api.GetAlbumPhotos(albumid, nextid, 10)
+		if err != nil {
+			Logger.Error("facebook GetAblumPhotos err %v\n", err)
+			return
+		}
+		// Logger.Debug("facebook photo\n%v", media)
+		user.PhotoPos[idx].NextID = media.Paging.Cursors.After
+		user.PhotoPos[idx].Page++
+		p = fb2ProtoPhoto(media.Data)
+	} else if idx == 0 {
+		// instagram的翻页并不支持跳转
+		// 必须从第一页开始逐页往后翻
+		// 所以这里的翻页也是假定前端是逐页发请求过来
+		Logger.Debug("Get photo from instagram\n")
+		// get instagram photo
+		api := user.InstagramApi
+		Logger.Debug("get photo from nextid %s", nextid)
+		medias, pos, err := api.RecentMedia(10, nextid)
+		if err != nil {
+			Logger.Error("instagram get photo err %v\n", err)
+			return
+		}
+		// 保存下一页的起始ID
+		user.PhotoPos[idx].NextID = pos.NextMaxID
+		user.PhotoPos[idx].Page++
+		p = media2ProtoPhoto(medias)
+	}
+	b, err := json.Marshal(p)
+	if err == nil {
+		w.Write(b)
+	}
 }
 
 // 获取用户相册
