@@ -34,6 +34,7 @@ type UserInfo struct {
 	UploadList     []*ProtoFileUploadInfo
 	CurrentCase    *ProtoCaseData
 	PhotoPos       []PhotoPage
+	Cart           []*ProtoCaseData
 }
 
 type CaseInfo struct {
@@ -128,7 +129,7 @@ func FindCreateUser(rid string) (*UserInfo, error) {
 		return info, nil
 	}
 	info := &UserInfo{
-		Rid: rid,
+		Rid:      rid,
 		PhotoPos: make([]PhotoPage, 2),
 	}
 	initAPI("instagram", info)

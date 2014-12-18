@@ -320,13 +320,16 @@ func HandleSaveImage(w http.ResponseWriter, req *http.Request) {
 	}
 
 	cc.PreviewRaw = path
-	// TODO:
-	// save user.CurrentCase to db and clear it
+	// Save user.CurrentCase to db
 	Logger.Debug("Save case data to db:\n%v\n", *cc)
 	if err = CaseDB.SetCase2(cc.ID, cc); err != nil {
 		Logger.Error("Case save to db err:\n", err)
 		return
 	}
+	// Save CurrentCase to Cart
+	user.Cart = append(user.Cart, user.CurrentCase)
+	// clear CurrentCase
+	user.CurrentCase = nil
 
 	ci := caseInfoFromCaseData(cc)
 	out, err := json.Marshal(ci)
