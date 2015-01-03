@@ -74,15 +74,23 @@ type Order struct {
 	CaseList    []string  `bson: "caselist"`
 }
 
+type Address struct {
+	Country string `bson:"country"`
+	Addr    string `bson:"addr"`
+	City    string `bson:"city"`
+	State   string `bson:"state"`
+}
+
 type User struct {
-	Email           string    `bson: "email"`
-	RegTime         time.Time `bson: "regtime"`
-	IP              string    `bson: "ip"`
-	LoginTime       time.Time `bson: "logintime"`
-	RealName        string    `bson: "realname"`
-	RealEnglishAddr string    `bson: "realenglishaddr"`
-	RealLocalAddr   string    `bson: "reallocaladdr"`
-	ZipCode         string    `bson: "zipcode"`
+	Email      string    `bson: "email"`
+	RegTime    time.Time `bson: "regtime"`
+	IP         string    `bson: "ip"`
+	LoginTime  time.Time `bson: "logintime"`
+	FirstName  string    `bson: "firstname"`
+	LastName   string    `bson: "lastname"`
+	Addr       Address   `bson: "addr"`
+	NativeAddr Address   `bson: "nativeaddr"`
+	ZipCode    string    `bson: "zipcode"`
 }
 
 type DB struct {

@@ -178,7 +178,7 @@ func media2ProtoPhoto(medias []instagram.Media) []ProtoPhoto {
 		p[i].Images["thumbnail"] = medias[i].Images.Thumbnail.URL
 		p[i].Images["raw_uri"] = medias[i].Images.StandardResolution.URL
 		p[i].Images["standard_resolution"] = medias[i].Images.StandardResolution.URL
-		p[i].Images["squared_thumbanil"] = medias[i].Images.Thumbnail.URL
+		p[i].Images["squared_thumbnail"] = medias[i].Images.Thumbnail.URL
 	}
 	return p
 }
@@ -192,7 +192,7 @@ func fb2ProtoPhoto(medias []facebook.PhotosData) []ProtoPhoto {
 		p[i].Images["thumbnail"] = medias[i].Picture
 		p[i].Images["raw_uri"] = medias[i].Source
 		p[i].Images["standard_resolution"] = medias[i].Images[0].Source
-		p[i].Images["squared_thumbanil"] = medias[i].Picture
+		p[i].Images["squared_thumbnail"] = medias[i].Picture
 	}
 	return p
 }
@@ -423,6 +423,7 @@ func initWebService() {
 		http.HandleFunc("/save_data", HandleSaveData)
 		http.HandleFunc("/auth", HandleAuth)
 		http.HandleFunc("/authentication", HandleAuthentication)
+		http.HandleFunc("/checkout", HandleCheckout)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))

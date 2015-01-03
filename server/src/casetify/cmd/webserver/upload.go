@@ -16,6 +16,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"strings"
 )
 
 func saveFile(part *multipart.Part) {
@@ -229,6 +230,10 @@ func HandleMapper(w http.ResponseWriter, req *http.Request) {
 	if len(img) == 0 {
 		return
 	}
+	if strings.HasPrefix(img, "http") {
+		http.Redirect(w, req, img, http.StatusFound)
+		return
+	}
 	f, err := os.Open("../htdocs/" + img)
 	if err != nil {
 		Logger.Logf(log4go.ERROR, "open %s error %v\n", img, err)
@@ -249,7 +254,7 @@ func newImgName(email string) string {
 
 func LocalPath2URL(path string) string {
 	prefix := "../htdocs"
-	return "http://127.0.0.1:8082" + path[len(prefix):]
+	return "http://" + serverconf.Domain + path[len(prefix):]
 }
 
 func caseInfoFromCaseData(data *ProtoCaseData) *ProtoCaseInfo {
