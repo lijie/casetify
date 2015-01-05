@@ -1,4 +1,7 @@
 htdocs/data/upload/*.png
 htdocs/data/*
 server/log/*.log*
+.DS_store
+bin
+pkg
 
