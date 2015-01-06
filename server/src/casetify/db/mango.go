@@ -66,11 +66,12 @@ type Case struct {
 }
 
 type Order struct {
-	OrderID     uint64    `bson: "_id"`
+	OrderID     string    `bson: "_id"`
 	UID         string    `bson: "uid"`
 	Time        time.Time `bson: "time"`
 	Status      int       `bson: "status"`
 	CloseReason int       `bson: "closereason"`
+	Amount      float64   `bson:"amount"`
 	CaseList    []string  `bson: "caselist"`
 }
 
@@ -177,21 +178,6 @@ func (db *DB) GetCasesByUser(uid string) ([]Case, error) {
 func (db *DB) SetOrder(order *Order) error {
 	_, err := db.ordertb.Upsert(bson.M{"_id": order.OrderID}, order)
 	return err
-}
-
-func (db *DB) generateOrderID() uint64 {
-	return 0
-}
-
-func (db *DB) NewOrder(uid string) *Order {
-	o := &Order{
-		OrderID:     db.generateOrderID(),
-		UID:         uid,
-		Time:        time.Now(),
-		Status:      OrderInvalid,
-		CloseReason: ReasonNotClose,
-	}
-	return o
 }
 
 func (db *DB) SetUser(user *User) error {

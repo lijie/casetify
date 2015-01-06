@@ -9,18 +9,6 @@ import (
 	"io/ioutil"
 )
 
-type ServerDevices struct {
-	DeviceID               string `json: "device_id,string"`
-	Description            string `json: "description"`
-	ShortDescription       string `json: "short_description"`
-	ShortName              string `json: "short_name"`
-	Status                 string `json: "status"`
-	ShowProductShot        string `json: "show_product_shot"`
-	IsDefaultForCollection string `json: "is_default_for_collection"`
-	SortSeq                string `json: "sort_seq"`
-	DefaultItemOption      string `json: "default_item_option"`
-	IsFeatured             string `json: "is_featured"`
-}
 
 type DataSet struct {
 	// 手机型号
@@ -65,6 +53,12 @@ func fillDataWithUserInfo(data *designDataSet, info *UserInfo) {
 		data.IsLogin = true
 	}
 	data.Email = info.Email
+}
+
+func UnmarshalJsonFile(path string, obj interface{}) error {
+	b := readJson(path)
+	err := json.Unmarshal(b, obj)
+	return err
 }
 
 func readJson(path string) []byte {

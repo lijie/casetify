@@ -3,6 +3,7 @@ package main
 import (
 	"casetify/facebook"
 	"casetify/instagram"
+	"casetify/db"
 	myoauth "casetify/oauth"
 	"code.google.com/p/goauth2/oauth"
 	"code.google.com/p/log4go"
@@ -35,6 +36,7 @@ type UserInfo struct {
 	CurrentCase    *ProtoCaseData
 	PhotoPos       []PhotoPage
 	Cart           []*ProtoCaseData
+	DbUser *db.User
 }
 
 type CaseInfo struct {

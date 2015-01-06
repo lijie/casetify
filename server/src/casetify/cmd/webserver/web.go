@@ -424,11 +424,18 @@ func initWebService() {
 		http.HandleFunc("/auth", HandleAuth)
 		http.HandleFunc("/authentication", HandleAuthentication)
 		http.HandleFunc("/checkout", HandleCheckout)
+		http.HandleFunc("/paypal/ap_success", HandleAPSuccess)
+		http.HandleFunc("/paypal/ap_cancell", HandleAPCancell)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
 	}
 }
+
+var DeviceArray []ProtoDeviceOption
+var BaseCaseArray []ProtoCaseOption
+var DeviceMap map[string]*ProtoDeviceOption
+var BaseCaseMap map[string]*ProtoCaseOption
 
 func initLogicServer() {
 	b, err := ioutil.ReadFile("conf/server.json")
@@ -447,6 +454,27 @@ func initLogicServer() {
 		os.Exit(255)
 	}
 	Logger.Info("Connect database %s ok", serverconf.Database)
+
+	// 读取支持的手机和手机壳信息
+	err = UnmarshalJsonFile("conf/devices.json", &DeviceArray)
+	if err != nil {
+		Logger.Error("load devices.json failed %v", err)
+	}
+	fmt.Println(DeviceArray)
+	DeviceMap = make(map[string]*ProtoDeviceOption)
+	for i := range DeviceArray {
+		DeviceMap[DeviceArray[i].DeviceID] = &DeviceArray[i]
+	}
+
+	err = UnmarshalJsonFile("conf/cases.json", &BaseCaseArray)
+	if err != nil {
+		Logger.Error("load cases.json failed %v", err)
+	}
+	fmt.Println(BaseCaseArray)
+	BaseCaseMap = make(map[string]*ProtoCaseOption)
+	for i := range BaseCaseArray {
+		BaseCaseMap[BaseCaseArray[i].TypeID] = &BaseCaseArray[i]
+	}
 }
 
 var Logger log4go.Logger

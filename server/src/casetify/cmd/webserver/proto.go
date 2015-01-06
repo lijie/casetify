@@ -91,3 +91,33 @@ type ProtoFileUploadInfo struct {
 	Uri      string `json:"uri"`
 	FileSize int64  `json:"file_size", string`
 }
+
+// 用于描述基本的手机壳属性
+type ProtoCaseOption struct {
+	TypeID              string  `json:"type_id"`
+	Description         string  `json:"description"`
+	BasePrice           float64 `json:"base_price,string"`
+	AdditionalCost      float64 `json:"additional_cost,string"`
+	DeviceTypeId        int     `json:"device_type_id,string"`
+	ItemType            string  `json:"item_type"`
+	ItemName            string  `json:"item_name"`
+	ItemTypeDescription string  `json:"item_type_description"`
+	SystemItemType      string  `json:"system_item_type"`
+	Status              string  `json:"status"`
+	SortSeq             int     `json:"sort_seq,string"`
+	ProductTypeID       int     `json:"product_type_id,string"`
+}
+
+// 用于描述基本的手机属性
+type ProtoDeviceOption struct {
+	DeviceID               string `json:"device_id"`
+	Description            string `json:"description"`
+	ShortDescription       string `json:"short_description"`
+	ShortName              string `json:"short_name"`
+	Status                 string `json:"status"`
+	ShowProductShot        string `json:"show_product_shot"`
+	IsDefaultForCollection string `json:"is_default_for_collection"`
+	SortSeq                int    `json:"sort_seq,string"`
+	DefaultItemOption      string `json:"default_item_option"`
+	IsFeatured             string `json:"is_featured"`
+}

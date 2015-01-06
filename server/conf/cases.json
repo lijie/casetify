@@ -1,0 +1,44 @@
+[
+    {
+        "type_id": "261",
+        "description": "iPhone 6 Transparent",
+        "base_price": "39.95",
+        "additional_cost": "0.00",
+        "device_type_id": "26",
+        "item_type": "Transparent",
+        "item_name": "iPhone 6 Case",
+        "item_type_description": "Frosty White",
+        "system_item_type": "frosty_white",
+        "status": "A",
+        "sort_seq": "261",
+        "product_type_id": "1"
+    },
+    {
+        "type_id": "61",
+        "description": "iPhone 5 Frosty White",
+        "base_price": "39.95",
+        "additional_cost": "0.00",
+        "device_type_id": "6",
+        "item_type": "Transparent",
+        "item_name": "Casetify iPhone 5 Classic Snap",
+        "item_type_description": "Frosty White",
+        "system_item_type": "frosty_white",
+        "status": "A",
+        "sort_seq": "61",
+        "product_type_id": "1"
+    },
+    {
+        "type_id": "231",
+        "description": "Samsung Galaxy S5 Frosty White",
+        "base_price": "39.95",
+        "additional_cost": "0.00",
+        "device_type_id": "23",
+        "item_type": "Transparent",
+        "item_name": "Casetify Samsung Galaxy S5 Case",
+        "item_type_description": "Frosty White",
+        "system_item_type": "frosty_white",
+        "status": "A",
+        "sort_seq": "231",
+        "product_type_id": "1"
+    }
+]

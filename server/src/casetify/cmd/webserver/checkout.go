@@ -3,8 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"gopkg.in/mgo.v2/bson"
 	"html/template"
 	"net/http"
+	"casetify/db"
+	"time"
+	"fmt"
 )
 
 type CheckoutDataSet struct {
@@ -61,20 +65,20 @@ type APRsp struct {
 	PaymentExecStatus string             `json:"paymentExecStatus"`
 }
 
-func sendAdaptivePayment(amount float64) (error, *APRsp) {
+func sendAdaptivePayment(order *db.Order) (error, *APRsp) {
 	ap := &APReq{
 		ActionType:   "PAY",
 		CurrencyCode: "USD",
 		ReceiverList: APReceiverList{
 			Receiver: []APReceiver{
 				APReceiver{
-					Amount: "39.90",
+					Amount: fmt.Sprintf("%f", order.Amount),
 					Email:  "lijay-test-ad@126.com",
 				},
 			},
 		},
-		ReturnUrl: "http://127.0.0.1:8083/paypal/ap_return",
-		CancelUrl: "http://127.0.0.1:8083/paypal/ap_cancel",
+		ReturnUrl: "http://127.0.0.1:8083/paypal/ap_return?orderid=" + order.OrderID,
+		CancelUrl: "http://127.0.0.1:8083/paypal/ap_cancel?orderid=" + order.OrderID,
 	}
 
 	b, err := json.Marshal(ap)
@@ -112,10 +116,74 @@ func sendAdaptivePayment(amount float64) (error, *APRsp) {
 	return nil, aprsp
 }
 
-func HandleCheckoutStep1(w http.ResponseWriter, req *http.Request) {
+func HandleAPSuccess(w http.ResponseWriter, req *http.Request) {
 }
 
-func HandleCheckoutStep2(w http.ResponseWriter, req *http.Request) {
+func HandleAPCancell(w http.ResponseWriter, req *http.Request) {
+}
+
+func fnHandleGetShipInfo(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	t, err := template.ParseFiles("../htdocs/checkout.html")
+	if err != nil {
+		return
+	}
+
+	ds := &CheckoutDataSet{
+		ItemCount: len(user.Cart),
+	}
+
+	if err = t.Execute(w, ds); err != nil {
+		return
+	}
+	return
+}
+
+func fnHandleShowDetail(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+}
+
+func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {	
+	// 生成订单并保存到db
+	order := &db.Order{
+		OrderID:     bson.NewObjectId().Hex(),
+		UID:         user.Email,
+		Time:        time.Now(),
+		Status:      db.OrderWaitPay,
+		CloseReason: db.ReasonNotClose,
+	}
+	fmt.Println(order)
+	// 计算价格
+	amount := 0.0
+	for i := range user.Cart {
+		c := user.Cart[i]
+		if c == nil {
+			continue
+		}
+		cd, ok := BaseCaseMap[c.ItemType];
+		if !ok {
+			continue
+		}
+		amount += cd.BasePrice + cd.AdditionalCost
+		order.CaseList = append(order.CaseList, c.ID)
+	}
+	order.Amount = amount
+	Logger.Debug("Total amount %f", amount)
+	if err := CaseDB.SetOrder(order); err != nil {
+		Logger.Error("save order:\n%v\nerr: %v", order, err)
+		return
+	}
+	err, aprsp := sendAdaptivePayment(order)
+	if err != nil {
+		Logger.Error("sendAdaptivePayment err %v", err)
+		return
+	}
+	if aprsp.ResponseEnvelope.Ack != "Success" {
+		Logger.Error("create adaptive pay failed:\n%v", *aprsp)
+		return
+	}
+	// redirect to paypal
+	url := "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-payment&paykey=" + aprsp.PayKey
+	http.Redirect(w, req, url, http.StatusFound)
+	return
 }
 
 func HandleCheckout(w http.ResponseWriter, req *http.Request) {
@@ -123,52 +191,37 @@ func HandleCheckout(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		return
 	}
-	//	if user.DbUser == nil {
-	//		user.DbUser, err = CaseDB.GetUser(user.Email)
-	//		if err != nil {
-	//			Logger.Error("Get user %s error %v", user.Email, err)
-	//			return
-	//		}
-	//	}
+
+	if len(user.Email) == 0 {
+		Logger.Error("User not login!")
+		return
+	}
+
+	if len(user.Cart) == 0 {
+		Logger.Error("Cart is empty!")
+		return
+	}
+
+	// load user data
+	if user.DbUser == nil {
+		user.DbUser, err = CaseDB.GetUser(user.Email)
+		if err != nil {
+			Logger.Error("Get user %s error %v", user.Email, err)
+			return
+		}
+	}
 
 	fn := req.FormValue("fn")
 	if len(fn) == 0 {
 		return
 	}
 
-	if fn == "getshipinfo" {
-		t, err := template.ParseFiles("../htdocs/checkout.html")
-		if err != nil {
-			return
-		}
-
-		ds := &CheckoutDataSet{
-			ItemCount: len(user.Cart),
-		}
-
-		if err = t.Execute(w, ds); err != nil {
-			return
-		}
-		return
-	}
-
-	if fn == "showdetail" {
-		return
-	}
-
-	if fn == "pay" {
-		err, aprsp := sendAdaptivePayment(9.9)
-		if err != nil {
-			Logger.Error("sendAdaptivePayment err %v", err)
-			return
-		}
-		if aprsp.ResponseEnvelope.Ack != "Success" {
-			Logger.Error("create adaptive pay failed")
-			return
-		}
-		// redirect to paypal
-		url := "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-payment&paykey=" + aprsp.PayKey
-		http.Redirect(w, req, url, http.StatusFound)
-		return
+	switch fn {
+	case "getshipinfo":
+		fnHandleGetShipInfo(w, req, user)
+	case "showdetaul":
+		break
+	case "pay":
+		fnHandlePay(w, req, user)
 	}
 }
