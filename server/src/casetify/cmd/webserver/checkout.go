@@ -2,14 +2,19 @@ package main
 
 import (
 	"bytes"
+	"casetify/db"
 	"encoding/json"
+	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"html/template"
 	"net/http"
-	"casetify/db"
 	"time"
-	"fmt"
 )
+
+type CheckoutItem struct {
+	Name  string
+	Price float64
+}
 
 type CheckoutDataSet struct {
 	ItemCount    int
@@ -21,9 +26,12 @@ type CheckoutDataSet struct {
 	City         string
 	ZipCode      string
 	State        string
+	Items        []*CheckoutItem
 	Subtotal     float64
 	ShippingCost float64
 	Total        float64
+	ShowFormShip bool
+	ShowDetail   bool
 }
 
 // paypal adaptive payment protocol
@@ -77,8 +85,8 @@ func sendAdaptivePayment(order *db.Order) (error, *APRsp) {
 				},
 			},
 		},
-		ReturnUrl: "http://127.0.0.1:8083/paypal/ap_return?orderid=" + order.OrderID,
-		CancelUrl: "http://127.0.0.1:8083/paypal/ap_cancel?orderid=" + order.OrderID,
+		ReturnUrl: "http://" + serverconf.Domain + "/paypal/ap_return?orderid=" + order.OrderID,
+		CancelUrl: "http://" + serverconf.Domain + "/paypal/ap_cancel?orderid=" + order.OrderID,
 	}
 
 	b, err := json.Marshal(ap)
@@ -117,9 +125,58 @@ func sendAdaptivePayment(order *db.Order) (error, *APRsp) {
 }
 
 func HandleAPSuccess(w http.ResponseWriter, req *http.Request) {
+	t, err := template.ParseFiles("../htdocs/pay_success.html")
+	if err != nil {
+		return
+	}
+	if err = t.Execute(w, nil); err != nil {
+		return
+	}
+	return
 }
 
 func HandleAPCancell(w http.ResponseWriter, req *http.Request) {
+	t, err := template.ParseFiles("../htdocs/pay_cancell.html")
+	if err != nil {
+		return
+	}
+	if err = t.Execute(w, nil); err != nil {
+		return
+	}
+	return
+}
+
+func fillCheckoutDataSetWithUserInfo(user *UserInfo) *CheckoutDataSet {
+	ds := &CheckoutDataSet{
+		ItemCount: len(user.Cart),
+		FirstName: user.DbUser.FirstName,
+		LastName:  user.DbUser.LastName,
+		Email:     user.DbUser.Email,
+		Country:   user.DbUser.Addr.Country,
+		City:      user.DbUser.Addr.City,
+		State:     user.DbUser.Addr.State,
+		Address:   user.DbUser.Addr.Addr,
+		ZipCode:   user.DbUser.ZipCode,
+	}
+	amount := 0.0
+	for i := range user.Cart {
+		if user.Cart[i] == nil {
+			continue
+		}
+		opt, ok := BaseCaseMap[user.Cart[i].ItemType]
+		if !ok {
+			continue
+		}
+		item := &CheckoutItem{
+			Name: opt.Description,
+			Price: opt.BasePrice + opt.AdditionalCost,
+		}
+		ds.Items = append(ds.Items, item)
+		amount += opt.BasePrice + opt.AdditionalCost
+	}
+	ds.Subtotal = amount
+	ds.Total = amount
+	return ds
 }
 
 func fnHandleGetShipInfo(w http.ResponseWriter, req *http.Request, user *UserInfo) {
@@ -128,9 +185,8 @@ func fnHandleGetShipInfo(w http.ResponseWriter, req *http.Request, user *UserInf
 		return
 	}
 
-	ds := &CheckoutDataSet{
-		ItemCount: len(user.Cart),
-	}
+	ds := fillCheckoutDataSetWithUserInfo(user)
+	ds.ShowFormShip = true
 
 	if err = t.Execute(w, ds); err != nil {
 		return
@@ -139,10 +195,55 @@ func fnHandleGetShipInfo(w http.ResponseWriter, req *http.Request, user *UserInf
 }
 
 func fnHandleShowDetail(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	s := req.PostFormValue("firstname")
+	if len(s) > 0 {
+		user.DbUser.FirstName = s
+	}
+	s = req.PostFormValue("lastname")
+	if len(s) > 0 {
+		user.DbUser.LastName = s
+	}
+	s = req.PostFormValue("country")
+	if len(s) > 0 {
+		user.DbUser.Addr.Country = s
+	}
+	s = req.PostFormValue("address")
+	if len(s) > 0 {
+		user.DbUser.Addr.Addr = s
+	}
+	s = req.PostFormValue("city")
+	if len(s) > 0 {
+		user.DbUser.Addr.City = s
+	}
+	s = req.PostFormValue("zipcode")
+	if len(s) > 0 {
+		user.DbUser.ZipCode = s
+	}
+	s = req.PostFormValue("state")
+	if len(s) > 0 {
+		user.DbUser.Addr.State = s
+	}
+	t, err := template.ParseFiles("../htdocs/checkout.html")
+	if err != nil {
+		return
+	}
+
+	ds := fillCheckoutDataSetWithUserInfo(user)
+	ds.ShowDetail = true
+
+	if err = t.Execute(w, ds); err != nil {
+		return
+	}
+	return
 }
 
-func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {	
-	// 生成订单并保存到db
+func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	// 保存用户地址信息
+	if err := CaseDB.SetUser(user.DbUser); err != nil {
+		Logger.Error("Save user %v to db failed", user.DbUser)
+		return
+	}
+	// 生成订单
 	order := &db.Order{
 		OrderID:     bson.NewObjectId().Hex(),
 		UID:         user.Email,
@@ -158,7 +259,7 @@ func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 		if c == nil {
 			continue
 		}
-		cd, ok := BaseCaseMap[c.ItemType];
+		cd, ok := BaseCaseMap[c.ItemType]
 		if !ok {
 			continue
 		}
@@ -167,10 +268,12 @@ func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	}
 	order.Amount = amount
 	Logger.Debug("Total amount %f", amount)
+	// 保存order到db
 	if err := CaseDB.SetOrder(order); err != nil {
 		Logger.Error("save order:\n%v\nerr: %v", order, err)
 		return
 	}
+	// 发起支付请求
 	err, aprsp := sendAdaptivePayment(order)
 	if err != nil {
 		Logger.Error("sendAdaptivePayment err %v", err)
@@ -219,8 +322,8 @@ func HandleCheckout(w http.ResponseWriter, req *http.Request) {
 	switch fn {
 	case "getshipinfo":
 		fnHandleGetShipInfo(w, req, user)
-	case "showdetaul":
-		break
+	case "showdetail":
+		fnHandleShowDetail(w, req, user)
 	case "pay":
 		fnHandlePay(w, req, user)
 	}

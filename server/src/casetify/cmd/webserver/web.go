@@ -334,6 +334,10 @@ func fnRegisterNewUser(w http.ResponseWriter, req *http.Request, user *UserInfo)
 	}
 
 	user.Email = email
+	// save to cookie
+	session, _ := CookieStore.Get(req, "session-name")
+	session.Values["email"] = email
+	session.Save(req, w)
 	io.WriteString(w, "1120")
 }
 
@@ -394,6 +398,7 @@ func HandleAuthentication(w http.ResponseWriter, req *http.Request) {
 
 var port = flag.Int("port", 80, "default port")
 var rootDir = flag.String("rootdir", "", "default root dir")
+var testenv = flag.Bool("test", false, "use test env")
 
 func initWebService() {
 	if *rootDir == "" {
@@ -424,8 +429,8 @@ func initWebService() {
 		http.HandleFunc("/auth", HandleAuth)
 		http.HandleFunc("/authentication", HandleAuthentication)
 		http.HandleFunc("/checkout", HandleCheckout)
-		http.HandleFunc("/paypal/ap_success", HandleAPSuccess)
-		http.HandleFunc("/paypal/ap_cancell", HandleAPCancell)
+		http.HandleFunc("/paypal/ap_return", HandleAPSuccess)
+		http.HandleFunc("/paypal/ap_cancel", HandleAPCancell)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
@@ -438,7 +443,11 @@ var DeviceMap map[string]*ProtoDeviceOption
 var BaseCaseMap map[string]*ProtoCaseOption
 
 func initLogicServer() {
-	b, err := ioutil.ReadFile("conf/server.json")
+	file := "conf/server.json"
+	if *testenv {
+		file = "conf/server_test.json"
+	}
+	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		Logger.Error("read server.json err:\n", err)
 		return

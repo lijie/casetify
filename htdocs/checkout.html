@@ -11,6 +11,7 @@
     <title>Checkout</title>
 
     <!-- Bootstrap core CSS -->
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
@@ -30,53 +31,68 @@
   <body>
     <div class="row">
       <div class="col-md-8">
-	<form class="form-horizontal">
+	<div id="detail_info" style="display:none">
+	  <div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h3 class="panel-title">Shipping Info</h3>
+	    </div>
+	    <div class="panel-body">
+	      <p>Name: {{.FirstName}} {{.LastName}}</p>
+	      <p>Address: {{.Address}} {{.City}} {{.State}} {{.Country}}</p>
+	      <p>ZipCode: {{.ZipCode}}</p>
+	      <p>Email: {{.Email}}</p>
+	    </div>
+	  </div>
+	  <a class="btn btn-default" href="checkout?fn=getshipinfo" role="button">Edit</a>
+	  <a class="btn btn-default" href="checkout?fn=pay" role="button">Continue</a>
+	</div>
+	<form id="form_ship_info" class="form-horizontal" method="POST" action="checkout?fn=showdetail" style="display:none">
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">First Name</label>
 	    <div class="col-sm-4">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.FirstName}}">
+	      <input type="text" class="form-control" id="firstname" name="firstname" value="{{.FirstName}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">Last Name</label>
 	    <div class="col-sm-4">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.LastName}}">
+	      <input type="text" class="form-control" id="lastname" name="lastname" value="{{.LastName}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label for="inputEmail3" class="col-sm-2 control-label">Email</label>
 	    <div class="col-sm-4">
-	      <input type="email" class="form-control" id="inputEmail3" placeholder="{{.Email}}">
+	      <input type="email" class="form-control" id="email" name="email" value="{{.Email}}" readonly="true">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">Country</label>
 	    <div class="col-sm-8">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.Country}}">
+	      <input type="text" class="form-control" id="country" name="country" value="{{.Country}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">Address</label>
 	    <div class="col-sm-8">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.Address}}">
+	      <input type="text" class="form-control" id="address" name="address" value="{{.Address}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">City</label>
 	    <div class="col-sm-8">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.City}}">
+	      <input type="text" class="form-control" id="city" name="city" value="{{.City}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">Zip Code</label>
 	    <div class="col-sm-8">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.ZipCode}}">
+	      <input type="text" class="form-control" id="zipcode" name="zipcode" value="{{.ZipCode}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
 	    <label class="col-sm-2 control-label">State/Province</label>
 	    <div class="col-sm-8">
-	      <input type="text" class="form-control" id="inputEmail3" placeholder="{{.State}}">
+	      <input type="text" class="form-control" id="state" name="state" value="{{.State}}">
 	    </div>
 	  </div>
 	  <div class="form-group">
@@ -90,8 +106,9 @@
 	<h2>Cart Summary</h2>
 	<hr>
 	<ul>
-	  <li>Item1</li>
-	  <li>Item2</li>
+	  {{range .Items}}
+	  <li>{{.Name}}: {{.Price}}</li>
+	  {{end}}
 	</ul>
 	<p>Subtotal:{{.Subtotal}}</p>
 	<p>Shipping Cost:{{.ShippingCost}}</p>
@@ -100,5 +117,15 @@
 	<h2>{{.Total}}</h2>
       </div>
     </div>
+    <script>
+      $(document).ready(function() {
+        if ({{.ShowFormShip}}) {
+          $('#form_ship_info').show();
+        }
+        if ({{.ShowDetail}}) {
+          $('#detail_info').show();
+        }
+      });
+    </script>
   </body>
 </html>

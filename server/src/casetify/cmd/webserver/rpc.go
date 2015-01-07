@@ -179,7 +179,13 @@ func RestoreUserInfoFromCookie(w http.ResponseWriter, req *http.Request) (*UserI
 		return nil, err
 	}
 
-	//	fmt.Printf("userinfo %v\n", info)
+	if len(info.Email) == 0 {
+		session, _ := CookieStore.Get(req, "session-name")
+		email, ok := session.Values["email"]
+		if ok && len(email.(string)) > 5 {
+			info.Email = email.(string)
+		}
+	}
 	return info, nil
 }
 
