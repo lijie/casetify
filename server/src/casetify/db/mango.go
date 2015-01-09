@@ -41,38 +41,14 @@ const (
 var ErrNotExist = errors.New("content not exist")
 var ErrUserAlreadyRegisted = errors.New("user already registerd")
 
-type CaseImg struct {
-	ImageURL string  `bson: "imsageurl"`
-	Scale    float64 `bson: "scale"`
-	Width    int     `bson: "width"`
-	Height   int     `bson: "height"`
-	X        int     `bson: "x"`
-	Y        int     `bson: "y"`
-}
-
-type Case struct {
-	// case 唯一标识
-	CaseID string `bson: "_id"`
-	// case 类型
-	CaseType string `bson: "casetype"`
-	// 手机类型
-	PhoneType string `bson: "phonetype"`
-	// 创建case的用户ID
-	UID        string    `bson: "uid"`
-	Images     []CaseImg `bson: "images"`
-	CreateTime time.Time `bson: "createtime"`
-	Filter     int       `bson: "filter"`
-	Preview    string    `bson: "preview"`
-}
-
 type Order struct {
-	OrderID     string    `bson: "_id"`
-	UID         string    `bson: "uid"`
-	Time        time.Time `bson: "time"`
-	Status      int       `bson: "status"`
-	CloseReason int       `bson: "closereason"`
+	OrderID     string    `bson:"_id"`
+	UID         string    `bson:"uid"`
+	Time        time.Time `bson:"time"`
+	Status      int       `bson:"status"`
+	CloseReason int       `bson:"closereason"`
 	Amount      float64   `bson:"amount"`
-	CaseList    []string  `bson: "caselist"`
+	CaseList    []string  `bson:"caselist"`
 }
 
 type Address struct {
@@ -117,7 +93,7 @@ func (db *DB) GetUser(uid string) (*User, error) {
 	return &u, nil
 }
 
-func (db *DB) GetOrder(orderid uint64) (*Order, error) {
+func (db *DB) GetOrder(orderid string) (*Order, error) {
 	q := db.ordertb.Find(bson.M{"_id": orderid})
 	count, err := q.Count()
 	if err != nil || count == 0 {
@@ -129,20 +105,6 @@ func (db *DB) GetOrder(orderid uint64) (*Order, error) {
 		return nil, err
 	}
 	return &o, nil
-}
-
-func (db *DB) GetCase(caseid string) (*Case, error) {
-	q := db.ordertb.Find(bson.M{"_id": caseid})
-	count, err := q.Count()
-	if err != nil || count == 0 {
-		return nil, ErrNotExist
-	}
-	var c Case
-	err = q.One(&c)
-	if err != nil {
-		return nil, err
-	}
-	return &c, nil
 }
 
 func (db *DB) GetOrdersByUser(uid string) ([]Order, error) {
@@ -160,21 +122,6 @@ func (db *DB) GetOrdersByUser(uid string) ([]Order, error) {
 	return orders, nil
 }
 
-func (db *DB) GetCasesByUser(uid string) ([]Case, error) {
-	q := db.ordertb.Find(bson.M{"uid": uid})
-	count, err := q.Count()
-	if err != nil || count == 0 {
-		return nil, ErrNotExist
-	}
-
-	var cases []Case
-	err = q.All(&cases)
-	if err != nil {
-		return nil, err
-	}
-	return cases, nil
-}
-
 func (db *DB) SetOrder(order *Order) error {
 	_, err := db.ordertb.Upsert(bson.M{"_id": order.OrderID}, order)
 	return err
@@ -183,6 +130,33 @@ func (db *DB) SetOrder(order *Order) error {
 func (db *DB) SetUser(user *User) error {
 	_, err := db.usertb.Upsert(bson.M{"email": user.Email}, user)
 	return err
+}
+
+func (db *DB) FindUserOrders(uid string) ([]Order, error) {
+	q := db.ordertb.Find(bson.M{"uid": uid})
+	count, err := q.Count()
+	if count == 0 || err != nil {
+		return nil, ErrNotExist
+	}
+	res := make([]Order, count)
+	err = q.All(&res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (db *DB) FindUserCases(uid string, data interface{})  error {
+	q := db.casetb2.Find(bson.M{"uid": uid})
+	count, err := q.Count()
+	if count == 0 || err != nil {
+		return ErrNotExist
+	}
+	err = q.All(data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db *DB) RegisterUser(email string) error {
@@ -198,11 +172,6 @@ func (db *DB) RegisterUser(email string) error {
 		return err
 	}
 	return nil
-}
-
-func (db *DB) SetCase(cs *Case) error {
-	_, err := db.casetb.Upsert(bson.M{"_id": cs.CaseID}, cs)
-	return err
 }
 
 // Save case info

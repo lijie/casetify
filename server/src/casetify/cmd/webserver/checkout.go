@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"net/http"
 	"time"
+	"io"
 )
 
 type CheckoutItem struct {
@@ -125,13 +126,22 @@ func sendAdaptivePayment(order *db.Order) (error, *APRsp) {
 }
 
 func HandleAPSuccess(w http.ResponseWriter, req *http.Request) {
-	t, err := template.ParseFiles("../htdocs/pay_success.html")
+	orderid := req.FormValue("orderid")
+	if len(orderid) == 0 {
+		Logger.Error("invliad orderid")
+		return
+	}
+	order, err := CaseDB.GetOrder(orderid)
 	if err != nil {
+		Logger.Error("get order %s error %v", orderid, err)
 		return
 	}
-	if err = t.Execute(w, nil); err != nil {
+	order.Status = db.OrderPaid
+	if err = CaseDB.SetOrder(order); err != nil {
+		Logger.Error("save order %s error %v", orderid, err)
 		return
 	}
+	io.WriteString(w, "pay success")
 	return
 }
 
@@ -180,6 +190,10 @@ func fillCheckoutDataSetWithUserInfo(user *UserInfo) *CheckoutDataSet {
 }
 
 func fnHandleGetShipInfo(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	if len(user.Cart) == 0 {
+		Logger.Error("Cart is empty!")
+		return
+	}
 	t, err := template.ParseFiles("../htdocs/checkout.html")
 	if err != nil {
 		return
@@ -195,6 +209,10 @@ func fnHandleGetShipInfo(w http.ResponseWriter, req *http.Request, user *UserInf
 }
 
 func fnHandleShowDetail(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	if len(user.Cart) == 0 {
+		Logger.Error("Cart is empty!")
+		return
+	}
 	s := req.PostFormValue("firstname")
 	if len(s) > 0 {
 		user.DbUser.FirstName = s
@@ -238,6 +256,10 @@ func fnHandleShowDetail(w http.ResponseWriter, req *http.Request, user *UserInfo
 }
 
 func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	if len(user.Cart) == 0 {
+		Logger.Error("Cart is empty!")
+		return
+	}
 	// 保存用户地址信息
 	if err := CaseDB.SetUser(user.DbUser); err != nil {
 		Logger.Error("Save user %v to db failed", user.DbUser)
@@ -289,6 +311,28 @@ func fnHandlePay(w http.ResponseWriter, req *http.Request, user *UserInfo) {
 	return
 }
 
+func fnHandleMyOrder(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	orders, err := CaseDB.FindUserOrders(user.Email)
+	if err != nil {
+		io.WriteString(w, fmt.Sprintf("get order err %v", err))
+		return
+	}
+	b, err := json.Marshal(orders)
+	io.WriteString(w, string(b))
+}
+
+
+func fnHandleGallery(w http.ResponseWriter, req *http.Request, user *UserInfo) {
+	var cases []ProtoCaseData
+	err := CaseDB.FindUserCases(user.Email, &cases)
+	if err != nil {
+		io.WriteString(w, fmt.Sprintf("get cases err %v", err))
+		return
+	}
+	b, err := json.Marshal(cases)
+	io.WriteString(w, string(b))
+}
+
 func HandleCheckout(w http.ResponseWriter, req *http.Request) {
 	user, err := RestoreUserInfoFromCookie(w, req)
 	if err != nil {
@@ -297,11 +341,6 @@ func HandleCheckout(w http.ResponseWriter, req *http.Request) {
 
 	if len(user.Email) == 0 {
 		Logger.Error("User not login!")
-		return
-	}
-
-	if len(user.Cart) == 0 {
-		Logger.Error("Cart is empty!")
 		return
 	}
 
@@ -326,5 +365,9 @@ func HandleCheckout(w http.ResponseWriter, req *http.Request) {
 		fnHandleShowDetail(w, req, user)
 	case "pay":
 		fnHandlePay(w, req, user)
+	case "myorder":
+		fnHandleMyOrder(w, req, user)
+	case "gallery":
+		fnHandleGallery(w, req, user)
 	}
 }

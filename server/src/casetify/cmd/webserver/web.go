@@ -431,6 +431,7 @@ func initWebService() {
 		http.HandleFunc("/checkout", HandleCheckout)
 		http.HandleFunc("/paypal/ap_return", HandleAPSuccess)
 		http.HandleFunc("/paypal/ap_cancel", HandleAPCancell)
+		http.HandleFunc("/gallery", HandleGallery)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
