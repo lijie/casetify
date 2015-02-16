@@ -64,7 +64,7 @@ func (fs *FileSave) Save() *FileInfo {
 		fs.fileName = part.FileName()
 		info.Name = fs.fileName
 		if fs.currfile == nil {
-			fs.currfile, _ = os.OpenFile("../html/uploadfiles/"+fs.fileName, os.O_RDWR|os.O_CREATE, 0666)
+			fs.currfile, _ = os.OpenFile("../tmp/"+fs.fileName, os.O_RDWR|os.O_CREATE, 0666)
 		}
 		n, _ = io.Copy(fs.currfile, part)
 		info.Size += n
