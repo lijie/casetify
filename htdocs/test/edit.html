@@ -10,29 +10,18 @@
     <link rel="icon" href="../../favicon.ico">
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="canvas.css">
+    <link rel="stylesheet" href="edit.css">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
-    
-    <title>Babegarden| Hand-made Accessories,Cute Baby hat,Scarf and Hat</title>
+    <title>Edit test</title>
   </head>
-  <body align="center">
-    <div class="box border">
-      <div>
-	<a href="#" id="btn_draw">Draw</a>
-	<a href="#" id="btn_position">GetPosition</a>
-	<a href="#" id="btn_edit">Edit</a>
-	<a href="#" id="btn_done">Done</a>
+  <body>
+    <div class="box" id="box">
+      <div class="show_range"></div>
+      <div class="test border" id="test_parent">
+	<img id="test" src="coc_th9_1.png" />
       </div>
-      <img id="canvas_img" width="282" height="560" />
-      <canvas id="canvas" width="282" height="560" style="display:none">
-	Canvas not supported
-      </canvas>
     </div>
-    <div class="test border" id="test">
-      <img src="coc_th9_1.png" />
-    </div>
-
   </body>
-  <script src="canvas.js"></script>
+  <script src="edit.js"></script>
 </html>
