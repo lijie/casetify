@@ -1,0 +1,27 @@
+.landing-main {
+    background: url("/img/metaluxe_landing.jpg");
+    background-size:cover;
+    background-position:center center;
+    min-height: 600px;
+}
+
+.landing-sub1 {
+    background: url("/img/landing_watch2.jpg");
+    background-size:cover;
+    background-position:center center;
+    height: 300px;
+}
+
+.landing-sub2 {
+    background: url("/img/karen.jpg");
+    background-size:cover;
+    background-position:center center;
+    height: 300px;
+}
+
+.landing-sub3 {
+    background: url("/img/landing_top100.jpg");
+    background-size:cover;
+    background-position:center center;
+    height: 300px;
+}
