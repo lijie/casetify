@@ -12,24 +12,23 @@ var baseImageReady = false
 var overlayImageReady = false
 var customImageReady = false
 var maskImageReady = false
+var needDrawCustom = true
 
 var maskImageData
 
-baseImage.src = '../img/template/base_iphone6_261.png'
 baseImage.onload = function() {
     console.log("baseimage ready")
     baseImageReady = true
     drawPhone()
 }
 
-overlayImage.src = '../img/template/overlay_iphone6-single-261.png'
 overlayImage.onload = function() {
     console.log("overlayimage ready")
     overlayImageReady = true
     drawPhone()
 }
 
-//customImage.src = 'coc_th9_1.png'
+customImage.src = '/img/coc_th9_1.png'
 customImage.onload = function() {
     console.log("customimage ready")
     customImageReady = true
@@ -39,7 +38,8 @@ customImage.onload = function() {
 var drawPhone = function() {
     if (baseImageReady && customImageReady && overlayImageReady && maskImageReady) {
 	context.drawImage(baseImage, 0, 0)
-	context.drawImage(customImage, 0, 0)
+	if (needDrawCustom)
+	    context.drawImage(customImage, 0, 0)
 	context.drawImage(overlayImage, 0, 0)
 
 	data = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
@@ -69,40 +69,61 @@ var drawDesign = function(imgurl) {
 }
 
 var loadMaskData = function() {
-    maskImage.src = '../img/template/mask_iphone6.png'
+    maskImage.src = '/img/mask_iphone6.png'
     maskImage.onload = function() {
 	console.log("maskimage ready")
 	maskImageReady = true
 	context.drawImage(maskImage, 0, 0)
 	maskImageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+	drawPhone();
     }
 }
 
 loadMaskData()
 
-// ui
+var drawDesign = function(baseimg, overlayimg, maskimg) {
+    needDrawCustom = false;
+    customImageReady = true;
+    baseImage.src = '/img/base_iphone6_261.png'
+    overlayImage.src = '/img/overlay_iphone6-single-261.png'
+    loadMaskData()
+}
 
-var raw_img_offset
+var drawCustomDesign = function(baseimg, overlayimg, maskimg, customimg) {
+    needDrawCustom = true;
+    customImageReady = false;
+    baseImage.src = '/img/base_iphone6_261.png';
+    overlayImage.src = '/img/overlay_iphone6-single-261.png';
+    customImage.src = customimg;
+    loadMaskData();
+}
 
-$(function() {
-    $("#test").resizable();
-    $("#test").parent().draggable();
-    $("#test").hide()
-})
-
-$("#btn_position").click(function() {
-    console.log($("#canvas_img").offset());
+// file upload
+/*jslint unparam: true */
+/*global window, $ */
+$(function () {
+    'use strict';
+    // Change this to the location of your server-side upload handler:
+    var url = window.location.hostname === 'blueimp.github.io' ?
+        '//jquery-file-upload.appspot.com/' : '/upload';
+    $('#item_small_image').fileupload({
+        url: url,
+        dataType: 'json',
+        done: function (e, data) {
+            // $('<p/>').text(data.name).appendTo('#files');
+            // $("#userimg").attr("src", "/uploadfiles/" + data.result.name);
+	    // $("#item_small_image_url").attr("value", data.result.url)
+	    // $("#item_small_image_preview").attr("src", data.result.url)
+	    console.log(data.result.url)
+	    drawCustomDesign(null, null, null, data.result.url);
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .progress-bar').css(
+                'width',
+                progress + '%'
+            );
+        }
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
-
-$("#btn_draw").click(function() {
-    drawDesign('coc_th9_1.png')
-});
-
-$("#btn_edit").click(function() {
-    $("#test").show();
-});
-
-$("#btn_done").click(function() {
-    $("#test").hide();
-});
-

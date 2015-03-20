@@ -1,13 +1,15 @@
 <div class="panel panel-success design_content" id="design_content">
-  <div class="panel-heading">chose your case</div>
-  <div class="panel-body">
+  <div class="panel-heading">CHOOSE CASE</div>
+  <div class="panel-body" align="left">
     <ul class="list-inline">
+      {{range .Cases}}
       <li>
-	<a href="javascript:void(0)" class="thumbnail" onclick="selectPhoneCase('iphone6_case')">
-	  <img src="/img/iphone6_case.jpg" alv="..." width="180" height="180" style="display:block">
+	<a href="javascript:void(0)" class="thumbnail" onclick="selectPhoneCase('{{.Name}}')">
+	  <img src="{{.Image}}" alv="..." width="180" height="180" style="display:block">
 	</a>
-	iPhone6 Base Case
+	<p>{{.FullName}}, ${{.Price}}</p>
       </li>
+      {{end}}
     </ul>
   </div>
   <div class="clear"></div>

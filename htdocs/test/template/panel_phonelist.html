@@ -1,0 +1,16 @@
+<div class="panel panel-success design_content">
+  <div class="panel-heading">CHOOSE YOUR DEVICE</div>
+  <div class="panel-body" align="left">
+    <ul class="list-inline">
+      {{range .Phones}}
+      <li>
+	<a href="javascript:void(0)" class="thumbnail" onclick="selectPhone('{{.Name}}')">
+	  <img src="{{.Image}}" alv="..." width="180" height="180" style="display:block">
+	</a>
+	<p align="center">{{.FullName}}</p>
+      </li>
+      {{end}}
+    </ul>
+  </div>
+  <div class="clear"></div>
+</div>

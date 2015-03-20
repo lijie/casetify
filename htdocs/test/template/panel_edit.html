@@ -1,0 +1,22 @@
+<script src="/js/jquery.fileupload.js"></script>
+<script src="/js/canvas.js"></script>
+<div class="panel panel-success design_content" id="design_content">
+  <div class="panel-heading">EDIT YOUR CASE</div>
+  <div class="panel-body">
+    <div style="position:absolute;width:80px;top:100px;right:180px;">
+      <p><a href="javascript:void(0)" class="btn btn-success" style="width:150px">UPLOAD IMAGE</a></p>
+    </div>
+    <div style="position:absolute;width:80px;top:100px;right:180px;opacity:0;">
+      <input type="file" id="item_small_image" name="item_small_image" style="height:50px;width:150px;" multiple>
+    </div>
+
+    <img id="canvas_img" width="282" height="560" />
+    <canvas id="canvas" width="282" height="560" style="display:none">
+      Canvas not supported
+    </canvas>
+  </div>
+  <div class="clear"></div>
+</div>
+<script>
+  drawDesign(null, null, null);
+</script>

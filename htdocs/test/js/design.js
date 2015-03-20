@@ -12,11 +12,7 @@ function loadPhoneList() {
 function selectPhone(name) {
     console.log(name);
 
-    url = "/template/panel_case.html";
-    if (name == "iphone6") {
-	url = "/template/panel_case.html";
-    }
-
+    url = "/design?fn=phonecase&phone=" + name;
     $.ajax({
 	type: 'GET',
 	url: url,
@@ -26,3 +22,17 @@ function selectPhone(name) {
 	dataType: 'html'
     });
 }
+
+function selectPhoneCase(name) {
+    url = "/design?fn=edit&case=" + name;
+    $.ajax({
+	type: 'GET',
+	url: url,
+	success: function(data, status, jq) {
+	    $('#design_content').html(data);
+	},
+	dataType: 'html'
+    });
+}
+
+loadPhoneList();

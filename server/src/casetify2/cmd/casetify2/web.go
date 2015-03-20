@@ -75,6 +75,7 @@ func initWebService() {
 		http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("../htdocs/test/js/"))))
 		http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("../htdocs/test/img/"))))
 		http.Handle("/template/", http.StripPrefix("/template/", http.FileServer(http.Dir("../htdocs/test/template/"))))
+		http.Handle("/tmp/", http.StripPrefix("/tmp/", http.FileServer(http.Dir("../server/tmp/"))))
 
 		// for casetify
 		http.HandleFunc("/", HandleMain)
@@ -82,6 +83,7 @@ func initWebService() {
 		http.HandleFunc("/index", HandleMain)
 		http.HandleFunc("/design/", HandleDesign)
 		http.HandleFunc("/design", HandleDesignFn)
+		http.HandleFunc("/upload", HandleUpload)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
