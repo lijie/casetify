@@ -170,6 +170,7 @@ func HandleDesignFn(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("fn")
 	fn := req.FormValue("fn")
 	if len(fn) == 0 {
+		http.Redirect(w, req, "/design/", http.StatusFound)
 		return
 	}
 
