@@ -115,6 +115,7 @@ $(function () {
 	    // $("#item_small_image_url").attr("value", data.result.url)
 	    // $("#item_small_image_preview").attr("src", data.result.url)
 	    console.log(data.result.url)
+	    $('#loader').hide();
 	    drawCustomDesign(null, null, null, data.result.url);
         },
         progressall: function (e, data) {
@@ -123,7 +124,10 @@ $(function () {
                 'width',
                 progress + '%'
             );
-        }
+        },
+	start: function(e, data) {
+	    $('#loader').show();
+	}
     }).prop('disabled', !$.support.fileInput)
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });

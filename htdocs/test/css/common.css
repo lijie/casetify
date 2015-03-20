@@ -18,3 +18,24 @@
     background-color: #f5f5f5;
     margin-top: 50px;
 }
+
+.center-center {
+    display: -webkit-box;
+    display: -webkit-flex;
+
+    display: -moz-box;
+    display: -moz-flex;
+
+    display: -ms-flexbox;
+
+    display: flex;
+
+    /* 垂直居中 */
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -ms-flex-pack:center;/* IE 10 */
+
+    -webkit-align-items: center;
+    -moz-align-items: center;
+    align-items: center;
+}
