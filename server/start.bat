@@ -1,1 +1,2 @@
-bin\webserver.exe -port=8080
+bin\casetify2.exe -port=8084 -test
+pause

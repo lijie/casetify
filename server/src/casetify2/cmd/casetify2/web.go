@@ -84,6 +84,7 @@ func initWebService() {
 		http.HandleFunc("/design/", HandleDesign)
 		http.HandleFunc("/design", HandleDesignFn)
 		http.HandleFunc("/upload", HandleUpload)
+		http.HandleFunc("/iphone6", HandleiPhone6)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
