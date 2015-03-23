@@ -7,7 +7,9 @@
 		{
 		    "name": "iphone6_base",
 		    "fullname": "iPhone6 Base Case",
-		    "price": "39.99"
+		    "price": "39.99",
+		    "width": 282,
+		    "height": 560
 		}
 	    ]
     },

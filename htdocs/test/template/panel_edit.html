@@ -3,14 +3,28 @@
 <div class="panel panel-success design_content" id="design_content">
   <div class="panel-heading">EDIT YOUR CASE</div>
   <div class="panel-body">
+    <div id="my-modal" style="position:fixed;width:100%;height:100%;left:0;right:0;top:0px;background:rgba(255,255,255,.8);z-index:100;display:none;" align="center">
+      <div class="show_image">
+	<div class="image_parent">
+	  <img class="custom_image border" id="custom-image" src="" />
+	</div>
+	<div class="show_range" id="show_range" style="width:{{.ImageWidth}}px; height:{{.ImageHeight}}px;"></div>
+      </div>
+    </div>
     <div id="loader" class="center-center" style="width: 100%; height: 100%; display:none;">
       <img src="/img/loaderc.gif"></div>
     </div>
     <div style="position:absolute;width:80px;top:100px;right:180px;">
-      <p><a href="javascript:void(0)" class="btn btn-success" style="width:150px">UPLOAD IMAGE</a></p>
+      <p><button href="javascript:void(0)" class="btn btn-success" style="width:150px">UPLOAD IMAGE</button></p>
     </div>
     <div style="position:absolute;width:80px;top:100px;right:180px;opacity:0;">
       <input type="file" id="item_small_image" name="item_small_image" style="height:50px;width:150px;" multiple>
+    </div>
+    <div style="position:absolute;width:80px;top:140px;right:180px;">
+      <p><button id="btn_edit" href="javascript:void(0)" class="btn btn-success" style="width:150px" disabled="disabled">EDIT IMAGE</button></p>
+    </div>
+    <div style="position:absolute;width:80px;top:180px;right:180px;">
+      <p><button id="btn_save" href="javascript:void(0)" class="btn btn-success" style="width:150px" disabled="disabled">SAVE</button></p>
     </div>
 
     <img id="canvas_img" width="282" height="560" />

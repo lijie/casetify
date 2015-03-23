@@ -11,9 +11,11 @@ import (
 )
 
 type DesignCase struct {
-	Name     string `json:"name"`
-	FullName string `json:"fullname"`
-	Price    string `json:"price"`
+	Name     string  `json:"name"`
+	FullName string  `json:"fullname"`
+	Price    string  `json:"price"`
+	Width    float64 `json:"width"`
+	Height   float64 `json:"height"`
 }
 
 type DesignPhone struct {
@@ -65,6 +67,15 @@ func findCaseByPhone(phone string) []DesignCase {
 	for i := range designPhone {
 		if designPhone[i].Name == phone {
 			return designPhone[i].Cases
+		}
+	}
+	return nil
+}
+
+func getDefaultCase(phone string) *DesignCase {
+	for i := range designPhone {
+		if designPhone[i].Name == phone {
+			return &designPhone[i].Cases[0]
 		}
 	}
 	return nil
@@ -148,9 +159,14 @@ func designGetCaseList(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+type dsDesignEdit struct {
+	ImageWidth  int
+	ImageHeight int
+}
+
 func designEdit(w http.ResponseWriter, req *http.Request) {
-	casename := req.FormValue("case")
-	if len(casename) == 0 {
+	phone := req.FormValue("phone")
+	if len(phone) == 0 {
 		return
 	}
 	t, err := template.New("panel_edit.html").ParseFiles(defaultTemplatePath + "panel_edit.html")
@@ -159,7 +175,20 @@ func designEdit(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = t.Execute(w, nil)
+	c := getDefaultCase(phone)
+	if c == nil {
+		Logger.Error("no default case")
+		return
+	}
+
+	fmt.Println(c)
+	ds := &dsDesignEdit{
+		ImageWidth:  int(c.Width),
+		ImageHeight: int(c.Height),
+	}
+
+	fmt.Println(ds)
+	err = t.Execute(w, ds)
 	if err != nil {
 		Logger.Error(err)
 		return

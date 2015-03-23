@@ -34,12 +34,37 @@ customImage.onload = function() {
     customImageReady = true
     drawPhone()
 }
+customImageX = 0;
+customImageY = 0;
+customImageAdjustW = 0;
+customImageAdjustH = 0;
 
 var drawPhone = function() {
     if (baseImageReady && customImageReady && overlayImageReady && maskImageReady) {
 	context.drawImage(baseImage, 0, 0)
-	if (needDrawCustom)
-	    context.drawImage(customImage, 0, 0)
+	if (needDrawCustom) {
+	    w = maskImage.width;
+	    h = maskImage.height;
+	    cw = customImage.width;
+	    ch = customImage.height;
+	    if (customImageAdjustW > 0 && customImageAdjustH > 0) {
+		cw = customImageAdjustW;
+		ch = customImageAdjustH;
+		console.log(cw, ch);
+	    }
+	    
+	    ratio = ch / cw;
+	    scale = 1.0;
+	    if (ratio > 1) {
+		scale = h / ch;
+	    } else {
+		scale = w / cw;
+	    }
+	    console.log(cw*scale, ch*scale);
+	    context.drawImage(customImage, customImageX, customImageY,
+			      cw * scale, ch * scale);
+	    customImageScale = scale;
+	}
 	context.drawImage(overlayImage, 0, 0)
 
 	data = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
@@ -98,6 +123,8 @@ var drawCustomDesign = function(baseimg, overlayimg, maskimg, customimg) {
     loadMaskData();
 }
 
+var customImageURL = ""
+
 // file upload
 /*jslint unparam: true */
 /*global window, $ */
@@ -114,9 +141,12 @@ $(function () {
             // $("#userimg").attr("src", "/uploadfiles/" + data.result.name);
 	    // $("#item_small_image_url").attr("value", data.result.url)
 	    // $("#item_small_image_preview").attr("src", data.result.url)
+	    customImageURL = data.result.url
 	    console.log(data.result.url)
 	    $('#loader').hide();
 	    drawCustomDesign(null, null, null, data.result.url);
+	    $('#btn_edit').removeAttr("disabled");
+	    $('#btn_save').removeAttr("disabled");
         },
         progressall: function (e, data) {
             var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -130,4 +160,39 @@ $(function () {
 	}
     }).prop('disabled', !$.support.fileInput)
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
+});
+
+$(document).ready(function() {
+    $('#btn_edit').on("click", function() {
+	$('#custom-image').attr("src", customImageURL);
+	$('#custom-image').attr("width", customImage.width * customImageScale);
+	$('#custom-image').attr("height", customImage.height * customImageScale);
+	$("#custom-image").resizable({
+	    stop: function(event, ui) {
+		console.log(ui);
+		customImageAdjustW = ui.size.width;
+		customImageAdjustH = ui.size.height;
+	    }
+	});
+	$("#custom-image").parent().draggable();
+	$('#my-modal').show();
+	$('#btn_exitedit').show();
+    });
+
+    $('#btn_exitedit').on("click", function() {
+
+	pos1 = $("#custom-image").offset();
+	pos2 = $("#show_range").offset();
+
+	console.log(pos1);
+	console.log(pos2);
+
+	customImageX = pos1.left - pos2.left;
+	customImageY = pos1.top - pos2.top;
+	
+	$('#my-modal').hide();
+	$('#btn_exitedit').hide();
+
+	drawPhone();
+    });
 });

@@ -12,7 +12,7 @@ function loadPhoneList() {
 function selectPhone(name) {
     console.log(name);
 
-    url = "/design?fn=phonecase&phone=" + name;
+    url = "/design?fn=edit&phone=" + name;
     $.ajax({
 	type: 'GET',
 	url: url,
@@ -24,7 +24,7 @@ function selectPhone(name) {
 }
 
 function selectPhoneCase(name) {
-    url = "/design?fn=edit&case=" + name;
+    url = "/design?fn=edit&phone=" + name;
     $.ajax({
 	type: 'GET',
 	url: url,
