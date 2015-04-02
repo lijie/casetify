@@ -28,16 +28,21 @@ overlayImage.onload = function() {
     drawPhone()
 }
 
-customImage.src = '/img/coc_th9_1.png'
-customImage.onload = function() {
-    console.log("customimage ready")
-    customImageReady = true
-    drawPhone()
+var customImageX = 0;
+var customImageY = 0;
+var customImageAdjustW = 0;
+var customImageAdjustH = 0;
+var customImageURL = "";
+var customImageScale = 1;
+
+var clearCustomParams = function() {
+    customImageX = 0;
+    customImageY = 0;
+    customImageAdjustW = 0;
+    customImageAdjustH = 0;
+    customImageURL = "";
+    customImageScale = 1;
 }
-customImageX = 0;
-customImageY = 0;
-customImageAdjustW = 0;
-customImageAdjustH = 0;
 
 var drawPhone = function() {
     if (baseImageReady && customImageReady && overlayImageReady && maskImageReady) {
@@ -53,14 +58,15 @@ var drawPhone = function() {
 		console.log(cw, ch);
 	    }
 	    
-	    ratio = ch / cw;
+	    ratio1 = ch / cw;
+	    ratio2 = h / w;
 	    scale = 1.0;
-	    if (ratio > 1) {
+	    if (ratio1 < ratio2) {
 		scale = h / ch;
 	    } else {
 		scale = w / cw;
 	    }
-	    console.log(cw*scale, ch*scale);
+	    console.log(cw*scale, ch*scale, ratio1, ratio2, scale, w, cw, h, ch);
 	    context.drawImage(customImage, customImageX, customImageY,
 			      cw * scale, ch * scale);
 	    customImageScale = scale;
@@ -70,7 +76,7 @@ var drawPhone = function() {
 	data = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 	newdata = doMaskImage(data, maskImageData)
 	context.putImageData(newdata, 0, 0)
-	canvas_img.src = canvas.toDataURL()
+	canvas_img.src = canvas.toDataURL();
     }
 }
 
@@ -93,8 +99,8 @@ var drawDesign = function(imgurl) {
     customImage.src = imgurl
 }
 
-var loadMaskData = function() {
-    maskImage.src = '/img/mask_iphone6.png'
+var loadMaskData = function(maskimg) {
+    maskImage.src = maskimg;
     maskImage.onload = function() {
 	console.log("maskimage ready")
 	maskImageReady = true
@@ -104,26 +110,27 @@ var loadMaskData = function() {
     }
 }
 
-loadMaskData()
+//loadMaskData()
 
 var drawDesign = function(baseimg, overlayimg, maskimg) {
+    console.log(baseimg, overlayimg, maskimg);
     needDrawCustom = false;
     customImageReady = true;
-    baseImage.src = '/img/base_iphone6_261.png'
-    overlayImage.src = '/img/overlay_iphone6-single-261.png'
-    loadMaskData()
+    baseImage.src = baseimg;
+    overlayImage.src = overlayimg;
+    loadMaskData(maskimg)
 }
 
-var drawCustomDesign = function(baseimg, overlayimg, maskimg, customimg) {
+var drawCustomDesign = function(customimg) {
     needDrawCustom = true;
     customImageReady = false;
-    baseImage.src = '/img/base_iphone6_261.png';
-    overlayImage.src = '/img/overlay_iphone6-single-261.png';
+    customImage.onload = function() {
+	console.log("customimage ready");
+	customImageReady = true;
+	drawPhone();
+    }
     customImage.src = customimg;
-    loadMaskData();
 }
-
-var customImageURL = ""
 
 // file upload
 /*jslint unparam: true */
@@ -137,14 +144,11 @@ $(function () {
         url: url,
         dataType: 'json',
         done: function (e, data) {
-            // $('<p/>').text(data.name).appendTo('#files');
-            // $("#userimg").attr("src", "/uploadfiles/" + data.result.name);
-	    // $("#item_small_image_url").attr("value", data.result.url)
-	    // $("#item_small_image_preview").attr("src", data.result.url)
+	    clearCustomParams();
 	    customImageURL = data.result.url
 	    console.log(data.result.url)
 	    $('#loader').hide();
-	    drawCustomDesign(null, null, null, data.result.url);
+	    drawCustomDesign(data.result.url);
 	    $('#btn_edit').removeAttr("disabled");
 	    $('#btn_save').removeAttr("disabled");
         },
@@ -165,6 +169,7 @@ $(function () {
 $(document).ready(function() {
     $('#btn_edit').on("click", function() {
 	$('#custom-image').attr("src", customImageURL);
+	console.log(customImage.width, customImageScale);
 	$('#custom-image').attr("width", customImage.width * customImageScale);
 	$('#custom-image').attr("height", customImage.height * customImageScale);
 	$("#custom-image").resizable({
@@ -194,5 +199,20 @@ $(document).ready(function() {
 	$('#btn_exitedit').hide();
 
 	drawPhone();
+    });
+
+    $('#btn_save').on("click", function() {
+	imgdata = canvas.toDataURL();
+	console.log(imgdata);
+	$.ajax({
+	    type: 'POST',
+	    url: '/save',
+	    //contentType: 'multipart/form-data-',
+	    data: { 'data': imgdata },
+	    success: function(e, data) {
+		console.log(data);
+	    },
+	    dataType: 'json'
+	});
     });
 });

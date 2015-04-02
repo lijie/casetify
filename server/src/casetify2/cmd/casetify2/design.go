@@ -11,16 +11,20 @@ import (
 )
 
 type DesignCase struct {
-	Name     string  `json:"name"`
-	FullName string  `json:"fullname"`
-	Price    string  `json:"price"`
-	Width    float64 `json:"width"`
-	Height   float64 `json:"height"`
+	Name         string  `json:"name"`
+	FullName     string  `json:"fullname"`
+	Price        string  `json:"price"`
+	Width        float64 `json:"width"`
+	Height       float64 `json:"height"`
+	BaseImage    string  `json:"baseimage"`
+	OverlayImage string  `json:"overlayimage"`
+	MaskImage    string  `json:"maskimage"`
 }
 
 type DesignPhone struct {
 	Name     string       `json:"name"`
 	FullName string       `json:"fullname"`
+	Image    string       `json:"image"`
 	Cases    []DesignCase `json:"cases"`
 }
 
@@ -160,8 +164,11 @@ func designGetCaseList(w http.ResponseWriter, req *http.Request) {
 }
 
 type dsDesignEdit struct {
-	ImageWidth  int
-	ImageHeight int
+	ImageWidth   int
+	ImageHeight  int
+	BaseImage    string `json:"baseimage"`
+	OverlayImage string `json:"overlayimage"`
+	MaskImage    string `json:"maskimage"`
 }
 
 func designEdit(w http.ResponseWriter, req *http.Request) {
@@ -183,8 +190,11 @@ func designEdit(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Println(c)
 	ds := &dsDesignEdit{
-		ImageWidth:  int(c.Width),
-		ImageHeight: int(c.Height),
+		ImageWidth:   int(c.Width),
+		ImageHeight:  int(c.Height),
+		BaseImage:    c.BaseImage,
+		OverlayImage: c.OverlayImage,
+		MaskImage:    c.MaskImage,
 	}
 
 	fmt.Println(ds)

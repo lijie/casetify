@@ -2,11 +2,15 @@
     {
 	"name": "iphone6",
 	"fullname": "iPhone 6",
+	"image": "",
 	"cases":
 	    [
 		{
 		    "name": "iphone6_base",
 		    "fullname": "iPhone6 Base Case",
+		    "baseimage": "/img/base_iphone6_261.png",
+		    "overlayimage": "/img/overlay_iphone6-single-261.png",
+		    "maskimage" : "/img/mask_iphone6.png",
 		    "price": "39.99",
 		    "width": 282,
 		    "height": 560
@@ -16,6 +20,7 @@
     {
 	"name": "iphone6p",
 	"fullname": "iPhone 6 Plus",
+	"image": "",
 	"cases":
 	    [
 		{
@@ -28,6 +33,7 @@
     {
 	"name": "galaxys5",
 	"fullname": "Galaxy S5",
+	"image": "",
 	"cases":
 	    [
 		{
@@ -40,6 +46,7 @@
     {
 	"name": "galaxynote4",
 	"fullname": "Galaxy Note4",
+	"image": "",
 	"cases":
 	    [
 		{
@@ -52,6 +59,7 @@
     {
 	"name": "iphone5s",
 	"fullname": "iPhone 5S",
+	"image": "",
 	"cases":
 	    [
 		{

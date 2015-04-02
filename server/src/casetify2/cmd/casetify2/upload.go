@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -34,6 +35,9 @@ type FileSave struct {
 	currfile *os.File
 }
 
+var errorJsonResp = "{\"result\":\"error\"}"
+var okJsonResp = "{\"result\":\"ok\"}"
+
 // todo:
 // 检查文件格式
 // 其它图像格式到png的转换
@@ -41,7 +45,7 @@ func (fs *FileSave) Save() *FileInfo {
 	name := fmt.Sprintf("%d", time.Now().UnixNano()) + ".png"
 	info := &FileInfo{
 		Type: "png",
-		Url:  "/tmp/" + name,
+		Url:  "/upload/raw/" + name,
 	}
 
 	var buffer bytes.Buffer
@@ -78,15 +82,14 @@ func (fs *FileSave) Save() *FileInfo {
 			Logger.Error(err)
 			return nil
 		}
-		if class != "png" {
-			fmt.Printf("convert %s to png\n", class)
-			buffer.Reset()
-			if err = png.Encode(&buffer, m); err != nil {
-				Logger.Error(err)
-				return nil
-			}
+		// if class != "png" {
+		fmt.Printf("convert %s to png\n", class)
+		if err = png.Encode(&buffer, m); err != nil {
+			Logger.Error(err)
+			return nil
 		}
-		f, err := os.OpenFile("./tmp/"+fs.fileName, os.O_RDWR|os.O_CREATE, 0666)
+		// }
+		f, err := os.OpenFile("./upload/raw/"+fs.fileName, os.O_RDWR|os.O_CREATE, 0666)
 		if err != nil {
 			Logger.Error(err)
 			return nil
@@ -115,4 +118,32 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 	out, _ := json.Marshal(info)
 	// fmt.Println(string(out))
 	w.Write(out)
+}
+
+func HandleSave(w http.ResponseWriter, r *http.Request) {
+	data := r.FormValue("data")
+	if len(data) == 0 {
+		Logger.Error("no png data")
+		io.WriteString(w, errorJsonResp)
+		return
+	}
+	// ignore 22 bytes header
+	b, err := base64.StdEncoding.DecodeString(data[22:])
+	if err != nil {
+		Logger.Error("base64 decode", err)
+		io.WriteString(w, errorJsonResp)
+		return
+	}
+
+	path := "upload/preview/" + fmt.Sprintf("%d", time.Now().UnixNano()) + ".png"
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		Logger.Error("open file", path, err)
+		io.WriteString(w, errorJsonResp)
+		return
+	}
+	defer f.Close()
+
+	f.Write(b)
+	io.WriteString(w, okJsonResp)
 }

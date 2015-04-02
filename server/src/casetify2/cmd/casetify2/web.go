@@ -1,7 +1,6 @@
 package main
 
 import (
-	"casetify/db"
 	"code.google.com/p/log4go"
 	"flag"
 	"fmt"
@@ -19,8 +18,6 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 // cookie encryption key cannot be set in source code
 // just for test
 var CookieStore = sessions.NewCookieStore([]byte("something-very-secert"))
-
-var CaseDB *db.DB
 
 type ServerConf struct {
 	Domain   string `json:"domain"`
@@ -75,7 +72,9 @@ func initWebService() {
 		http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("../htdocs/test/js/"))))
 		http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("../htdocs/test/img/"))))
 		http.Handle("/template/", http.StripPrefix("/template/", http.FileServer(http.Dir("../htdocs/test/template/"))))
-		http.Handle("/tmp/", http.StripPrefix("/tmp/", http.FileServer(http.Dir("../server/tmp/"))))
+		// http.Handle("/tmp/", http.StripPrefix("/tmp/", http.FileServer(http.Dir("tmp/"))))
+		http.Handle("/upload/raw/", http.StripPrefix("/upload/raw/", http.FileServer(http.Dir("upload/raw/"))))
+		http.Handle("/upload/preview/", http.StripPrefix("/upload/preview/", http.FileServer(http.Dir("upload/preview/"))))
 
 		// for casetify
 		http.HandleFunc("/", HandleMain)
@@ -85,6 +84,7 @@ func initWebService() {
 		http.HandleFunc("/design", HandleDesignFn)
 		http.HandleFunc("/upload", HandleUpload)
 		http.HandleFunc("/iphone6", HandleiPhone6)
+		http.HandleFunc("/save", HandleSave)
 	} else {
 		// run for SimpleHttpd
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(*rootDir))))
